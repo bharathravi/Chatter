@@ -34,7 +34,7 @@ public class ChatterClient {
 
       int c =-1;
       while( (c=inputReader.read()) != 0) {
-        System.out.print(c);
+        System.out.print((char)c);
       }
 
     } catch (UnknownHostException e) {
