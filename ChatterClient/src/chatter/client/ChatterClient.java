@@ -1,10 +1,7 @@
 package chatter.client;
 
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -32,10 +29,15 @@ public class ChatterClient {
       InputStreamReader inputReader =
           new InputStreamReader(inputStream, "US-ASCII");
 
+      OutputStream output = connection.getOutputStream();
+
       int c =-1;
       while( (c=inputReader.read()) != 0) {
         System.out.print((char)c);
+        //output.write("Hello there\0".getBytes());
       }
+
+      while(true) ;
 
     } catch (UnknownHostException e) {
       System.out.println("Unknown address");
