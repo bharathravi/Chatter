@@ -31,14 +31,15 @@ public class ClientHandler implements Runnable {
         // If the client was able to authenticate itself, then
         // proceed with the chat stuff.
         InputStream input = clientSocket.getInputStream();
+        System.out.println("Yes");
+      } else {
+        System.out.println("No");
       }
 
     } catch (InterruptedIOException e) {
       System.out.println("Closing client due to time-out");
     } catch (IOException e) {
       System.out.println("Closing client due to long text");
-    } catch (TextTooLongException e) {
-
     } finally {
       globalData.setConnectedClients(globalData.getConnectedClients() - 1);
       System.out.println("Client disconnected. Client count is:" +
@@ -52,7 +53,7 @@ public class ClientHandler implements Runnable {
     }
   }
 
-  private boolean authenticateClient() throws IOException, TextTooLongException {
+  private boolean authenticateClient() throws IOException {
     OutputStream output = clientSocket.getOutputStream();
     output.write("PASS\n".getBytes());
 
@@ -67,14 +68,14 @@ public class ClientHandler implements Runnable {
     int c =-1;
     String unamePasswd = "";
     while((c=inputReader.read()) != '\n') {
-      unamePasswd += c;
-      if (unamePasswd.length() == Constants.TEXT_LIMIT) {
-        // Something fishy is going on. Simply break.
+      unamePasswd += (char)c;
+      if (unamePasswd.length() >= Constants.TEXT_LIMIT) {
+        // Uname + Password is too long. This is fishy, so break.
         break;
       }
-
     }
 
+    System.out.println("Client says: " + unamePasswd);
 
     ClientAuthenticator auth = new ClientAuthenticator(unamePasswd);
     return auth.authenticate();

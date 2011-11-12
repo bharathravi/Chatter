@@ -31,11 +31,11 @@ public class ChatterClient {
 
       OutputStream output = connection.getOutputStream();
 
-      int c =-1;
-      while( (c=inputReader.read()) != 0) {
-        System.out.print((char)c);
-        //output.write("Hello there\0".getBytes());
-      }
+//      int c =-1;
+//      while( (c=inputReader.read()) != 0) {
+//        System.out.print((char)c);
+//      }
+      output.write("bharath,bharath\n".getBytes());
 
       while(true) ;
 
