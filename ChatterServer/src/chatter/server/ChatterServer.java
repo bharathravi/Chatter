@@ -1,5 +1,7 @@
 package chatter.server;
 
+import chatter.common.Constants;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -13,33 +15,27 @@ import java.net.Socket;
  * To change this template use File | Settings | File Templates.
  */
 public class ChatterServer {
-  private int currentClients;
 
-  ChatterServer() {
-    this.currentClients = 0;
-  }
+  ChatterServer() {}
 
-  public static void main(String[] args) {
-    startListening();
-  }
-
-  private static void startListening() {
-
-    final ServerGlobalData globalData = new ServerGlobalData();
-
+  public void startListening() {
+    final ClientCountMonitor clientCountMonitor = new ClientCountMonitor();
+    final Broadcaster broadcaster = new Broadcaster();
 
     try {
       ServerSocket serverSocket = new ServerSocket(Constants.PORT);
       while(true) {
         System.out.println("Current client count is " +
-              globalData.getConnectedClients());
+            clientCountMonitor.getClientCount());
         Socket clientSocket = serverSocket.accept();
-        if (isMaxedOut(globalData)) {
-          rejectClient(globalData, clientSocket);
+        if (isMaxedOut(clientCountMonitor)) {
+          rejectClient(clientSocket);
         } else {
-          globalData.setConnectedClients(globalData.getConnectedClients() + 1);
+          // Increment the clientCount at this point, so that we don't even bother
+          // authenticating if there are too many clients connected.
+          clientCountMonitor.incrementClientCount();
           new Thread(
-              new ClientHandler(clientSocket, globalData)
+              new ClientHandler(clientSocket, clientCountMonitor, broadcaster)
           ).start();
         }
       }
@@ -48,15 +44,14 @@ public class ChatterServer {
     }
   }
 
-  private static void rejectClient(ServerGlobalData globalData, Socket clientSocket) throws IOException {
+  private void rejectClient(Socket clientSocket) throws IOException {
     OutputStream output = clientSocket.getOutputStream();
-    System.out.println("Rejecting client because client count is: " +
-        globalData.getConnectedClients());
+    System.out.println("Rejecting client because client count is above limit");
     output.write("I'm full. Bye.\0".getBytes());
     clientSocket.close();
   }
 
-  private static boolean isMaxedOut(ServerGlobalData globalData) {
-    return globalData.getConnectedClients() >= Constants.MAXCLIENTS;
+  private boolean isMaxedOut(ClientCountMonitor monitor) {
+    return monitor.getClientCount() >= Constants.MAXCLIENTS;
   }
 }

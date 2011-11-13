@@ -1,4 +1,4 @@
-package chatter.server;
+package chatter.common;
 
 import javax.sound.sampled.Port;
 
@@ -13,7 +13,7 @@ public class Constants {
   public static final int PORT=50154;
   public static final String HOST="localhost";
   public static final int MAXCLIENTS=4;
-  public static final int INITIAL_TIMEOUT = 10000;
+  public static final int AUTHENTICATION_TIMEOUT = 30000;
   public static final int CHAT_TIMEOUT = 300000;
   public static final int TEXT_LIMIT = 10000;
   public static final char PASSWORD_SEPARATOR = ',';
