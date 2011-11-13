@@ -20,7 +20,7 @@ public class ChatterServer {
 
   public void startListening() {
     final ClientCountMonitor clientCountMonitor = new ClientCountMonitor();
-    final Broadcaster broadcaster = new Broadcaster();
+    final BroadcastService broadcastService = new BroadcastService();
 
     try {
       ServerSocket serverSocket = new ServerSocket(Constants.PORT);
@@ -35,7 +35,7 @@ public class ChatterServer {
           // authenticating if there are too many clients connected.
           clientCountMonitor.incrementClientCount();
           new Thread(
-              new ClientHandler(clientSocket, clientCountMonitor, broadcaster)
+              new ClientHandler(clientSocket, clientCountMonitor, broadcastService)
           ).start();
         }
       }

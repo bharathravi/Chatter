@@ -19,14 +19,15 @@ public class ClientHandler implements Runnable, BroadcastListener {
   private User thisUser;
   private EncryptedSocket clientSocket;
   private ClientCountMonitor clientCount;
-  private Broadcaster broadcaster;
+  private BroadcastService broadcastService;
 
   public ClientHandler(Socket clientSocket,
                        ClientCountMonitor clientCountMonitor,
-                       Broadcaster broadcaster) {
+                       BroadcastService broadcastService) {
     this.clientSocket = new EncryptedSocket(clientSocket);
     this.clientCount = clientCountMonitor;
-    this.broadcaster = broadcaster;
+    this.broadcastService = broadcastService;
+    broadcastService.registerListener(this);
   }
 
 
@@ -60,6 +61,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
   }
 
   private void disconnect() {
+    broadcastService.unregisterListener(this);
     thisUser.setLoggedIn(false);
     if (!clientSocket.isClosed()) {
       clientCount.decrementClientCount();
@@ -75,27 +77,31 @@ public class ClientHandler implements Runnable, BroadcastListener {
   }
 
   private void startChatting() throws IOException, InvalidMessageException {
-    String line = clientSocket.readLine();
-    Message msg = new Message(line);
+    while(true) {
+      String line = clientSocket.readLine();
+      Message msg = new Message(line);
 
-    switch (msg.type) {
-      case AUTH: //Ignore, the client is already authenticated.
-        break;
-      case QUIT:
-        System.out.println("User " + thisUser.getUserName() +" has quit");
-        return;
-      case CHAT:
-        broadcastLine(thisUser.getUserName() + ": " + line);
-      default:
-        System.out.println("I have no clue what the heck just happened,\n" +
-            "but I'm going to nod and smile like I understood.");
+      System.out.println(thisUser.getUserName() + " says: " + line);
+      switch (msg.type) {
+        case AUTH: //Ignore, the client is already authenticated.
+          break;
+        case QUIT:
+          System.out.println("User " + thisUser.getUserName() +" has quit");
+          return;
+        case CHAT:
+          broadcastLine(
+              Message.createChatMessage(
+                  thisUser.getUserName() + ": " + msg.messageContent));
+          break;
+        default:
+          System.out.println("I have no clue what the heck just happened,\n" +
+              "but I'm going to nod and smile like I understood.");
+      }
     }
-
-
   }
 
-  private void broadcastLine(String line) {
-    broadcaster.sendBroadcast(line);
+  private void broadcastLine(String line) throws IOException {
+    broadcastService.sendBroadcast(line);
   }
 
   private void setupEncryption() {
@@ -120,7 +126,8 @@ public class ClientHandler implements Runnable, BroadcastListener {
     return false;
   }
 
-  public void onBroadcast(String message) {
-    // TODO(bharath): Encrypt string and send it out.
+  public void onBroadcast(String message) throws IOException {
+    System.out.println("Sending message:" + message);
+    clientSocket.sendLine(message);
   }
 }

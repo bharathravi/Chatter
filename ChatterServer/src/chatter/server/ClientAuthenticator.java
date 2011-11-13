@@ -32,6 +32,9 @@ public class ClientAuthenticator {
       BigInteger number = new BigInteger(1, passwdHash);
       String hashtext = number.toString(16);
 
+      System.out.println(uname);
+      System.out.println(database.database.get(uname).getPasswordHash());
+      System.out.println(hashtext);
       if (database.database.containsKey(uname)) {
         User user = database.database.get(uname);
 

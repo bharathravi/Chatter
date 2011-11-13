@@ -1,5 +1,7 @@
 package chatter.server;
 
+import java.io.IOException;
+
 /**
  * Created by IntelliJ IDEA.
  * User: bharath
@@ -8,5 +10,5 @@ package chatter.server;
  * To change this template use File | Settings | File Templates.
  */
 public interface BroadcastListener {
-  public void onBroadcast(String message);
+  public void onBroadcast(String message) throws IOException;
 }

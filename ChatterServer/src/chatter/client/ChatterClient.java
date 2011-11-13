@@ -10,6 +10,8 @@ import chatter.common.EncryptedSocket;
 import chatter.common.InvalidMessageException;
 import chatter.common.Message;
 
+import static chatter.common.Constants.QUIT_MESSAGE;
+
 /**
  * Created by IntelliJ IDEA.
  * User: bharath
@@ -18,8 +20,15 @@ import chatter.common.Message;
  * To change this template use File | Settings | File Templates.
  */
 public class ChatterClient {
-  public static void main(String[] args) {
-    EncryptedSocket connection = null;
+  private static Thread serverThread;
+  private static EncryptedSocket connection;
+
+
+  public ChatterClient() {
+
+  }
+
+  public void start() {
     try {
       InetAddress address = InetAddress.getByName(Constants.HOST);
       connection = new EncryptedSocket(new Socket(address, Constants.PORT));
@@ -30,30 +39,44 @@ public class ChatterClient {
       //  connection.sendLine("Hello There");
       InputStreamReader inputStreamReader = new InputStreamReader(System.in);
       BufferedReader readChat = new BufferedReader(inputStreamReader);
-      System.out.println("UserName : ");
+      System.out.print("UserName : ");
       String username = readChat.readLine();
-      System.out.println("Password : ");
+      System.out.print("Password : ");
       String password = readChat.readLine();
 
       connection.sendLine(Message.createAuthMessage(username, password));
-
-
       String response = connection.readLine();
       Message msg = new Message(response);
 
       switch (msg.type) {
         case QUIT:
           System.out.println("Incorrect uname/passwd");
-          break;
+          return;
         case OKAY:
           System.out.println("Logged in");
-         // connection.sendLine(Message.createQuitMessage());
+          // connection.sendLine(Message.createQuitMessage());
           break;
         default:
           System.out.println("No clue what the heck happened");
       }
 
-      while(true);
+      createServerThread();
+      serverThread.start();
+
+      while (true) {
+        System.out.print("Chat: ");
+        try {
+          String chatText = readChat.readLine();
+          if (chatText.equals(Constants.QUIT_MESSAGE)){
+            connection.sendLine(Message.createQuitMessage());
+            disconnect();
+          } else {
+            connection.sendLine(Message.createChatMessage(chatText));
+          }
+        } catch (IOException e) {
+          System.out.println("Error reading chat");
+        }
+      }
 
 
 //
@@ -79,8 +102,6 @@ public class ChatterClient {
 //          connection.sendLine(optext);
 //        }
 
-
-     // connection.close();
     } catch (UnknownHostException e) {
       System.out.println("Unknown address");
       e.printStackTrace();
@@ -97,5 +118,46 @@ public class ChatterClient {
       }
     }
 
+  }
+
+  private void createServerThread() {
+    final EncryptedSocket finalConnection = connection;
+    serverThread = new Thread(new Runnable() {
+    public void run() {
+      // Main while loop of the client. Endlessly wait for messages from server
+      // and print them out.
+      boolean quit = false;
+      while (!quit) {
+        String responseLine = null;
+        try {
+          responseLine = finalConnection.readLine();
+          Message msg = new Message(responseLine);
+          switch (msg.type) {
+            case QUIT:
+              System.out.println("Server has quit.");
+              quit = true;
+              break;
+            case CHAT:
+              System.out.println(msg.messageContent);
+              break;
+            default:
+              System.out.println("I have no clue what the heck just happened,\n" +
+                  "but I'm going to nod and smile like I understood.");
+          }
+
+          disconnect();
+        } catch (IOException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (InvalidMessageException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+      }
+    }
+  });
+  }
+
+  private static void disconnect() throws IOException {
+    connection.close();
+    serverThread.interrupt();
   }
 }

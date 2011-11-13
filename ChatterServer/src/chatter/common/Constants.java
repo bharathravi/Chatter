@@ -17,4 +17,5 @@ public class Constants {
   public static final int CHAT_TIMEOUT = 300000;
   public static final int TEXT_LIMIT = 10000;
   public static final char PASSWORD_SEPARATOR = ',';
+  public static final String QUIT_MESSAGE = "\\quit";
 }
