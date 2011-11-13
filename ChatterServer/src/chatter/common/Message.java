@@ -29,7 +29,12 @@ public class Message {
       throw new InvalidMessageException();
     }
 
-    return MessageType.valueOf(message.substring(0,4));
+    try {
+     MessageType type = MessageType.valueOf(message.substring(0,4));
+     return type;
+    } catch (Exception e) {
+      throw new InvalidMessageException(e);
+    }
   }
 
   private String parseContent(String message) throws InvalidMessageException {

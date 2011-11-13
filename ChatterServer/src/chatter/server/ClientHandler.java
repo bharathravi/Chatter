@@ -52,14 +52,15 @@ public class ClientHandler implements Runnable, BroadcastListener {
       System.out.println("Closing client due IO Exception");
       e.printStackTrace();
     } catch (InvalidMessageException e) {
-      System.out.println("Invalid/Unexpected message received");
-      e.printStackTrace();
+      System.out.println("Ignoring Invalid/Unexpected message received");
+      //e.printStackTrace();
     } finally {
       disconnect();
     }
   }
 
   private void disconnect() {
+    thisUser.setLoggedIn(false);
     if (!clientSocket.isClosed()) {
       clientCount.decrementClientCount();
       System.out.println("Client disconnected. Client count is:" +
@@ -81,7 +82,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
       case AUTH: //Ignore, the client is already authenticated.
         break;
       case QUIT:
-        System.out.println("The client has quit");
+        System.out.println("User " + thisUser.getUserName() +" has quit");
         return;
       case CHAT:
         broadcastLine(thisUser.getUserName() + ": " + line);
@@ -110,7 +111,10 @@ public class ClientHandler implements Runnable, BroadcastListener {
     if (msg.type == Message.MessageType.AUTH) {
       System.out.println("Client says: " + msg.messageContent);
       ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
-      return auth.authenticate();
+      if(auth.authenticate()) {
+        thisUser = UserDatabase.getInstance().database.get(auth.uname);
+        return true;
+      }
     }
 
     return false;

@@ -8,4 +8,11 @@ package chatter.common;
  * To change this template use File | Settings | File Templates.
  */
 public class InvalidMessageException extends Exception {
+  public InvalidMessageException(Exception e) {
+    super(e);
+  }
+
+  public InvalidMessageException(){
+    super();
+  }
 }

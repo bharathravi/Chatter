@@ -22,14 +22,10 @@ public class ClientAuthenticator {
     int separator = unamePasswd.indexOf(Constants.PASSWORD_SEPARATOR);
     uname = unamePasswd.substring(0, separator);
     passwd = unamePasswd.substring(separator + 1, unamePasswd.length());
-    try {
-      database = new UserDatabase();
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    }
+    database = UserDatabase.getInstance();
   }
 
-  public boolean authenticate() {
+  public synchronized boolean authenticate() {
     try {
       MessageDigest md5 = MessageDigest.getInstance("MD5");
       byte[] passwdHash = md5.digest(passwd.getBytes());
@@ -39,8 +35,7 @@ public class ClientAuthenticator {
       if (database.database.containsKey(uname)) {
         User user = database.database.get(uname);
 
-        if(user.getPasswordHash().equals(hashtext) &&
-            !user.isLoggedIn())
+        if(user.getPasswordHash().equals(hashtext))
           return true;
       }
     } catch (NoSuchAlgorithmException e) {

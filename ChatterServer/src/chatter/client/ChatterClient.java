@@ -47,11 +47,14 @@ public class ChatterClient {
           break;
         case OKAY:
           System.out.println("Logged in");
-          connection.sendLine(Message.createQuitMessage());
+         // connection.sendLine(Message.createQuitMessage());
           break;
         default:
           System.out.println("No clue what the heck happened");
       }
+
+      while(true);
+
 
 //
 //          System.out.println("Password : ");
@@ -77,7 +80,7 @@ public class ChatterClient {
 //        }
 
 
-      connection.close();
+     // connection.close();
     } catch (UnknownHostException e) {
       System.out.println("Unknown address");
       e.printStackTrace();

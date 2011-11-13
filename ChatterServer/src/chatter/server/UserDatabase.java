@@ -14,8 +14,21 @@ import java.util.HashMap;
 public class UserDatabase {
   HashMap<String, User> database = new HashMap<String, User>();
 
-  UserDatabase() throws NoSuchAlgorithmException {
-    MessageDigest md5 = MessageDigest.getInstance("MD5");
+  private static final UserDatabase instance = new UserDatabase();
+
+  public static UserDatabase getInstance() {
+    return instance;
+  }
+
+
+
+  private UserDatabase(){
+    try {
+      MessageDigest md5 = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      System.out.println("Unable to create an MD5 hasher.");
+      e.printStackTrace();
+    }
     database.put("bharath",
         new User("bharath", "7616b81196ee6fe328497da3f1d9912d"));
   }
