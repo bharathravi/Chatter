@@ -1,9 +1,6 @@
 package chatter.server;
 
-import chatter.common.Constants;
-import chatter.common.EncryptedSocket;
-import chatter.common.InvalidMessageException;
-import chatter.common.Message;
+import chatter.common.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -23,7 +20,8 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   public ClientHandler(Socket clientSocket,
                        ClientCountMonitor clientCountMonitor,
-                       BroadcastService broadcastService) {
+                       BroadcastService broadcastService) throws IOException,
+      DiffieHellmanException {
     this.clientSocket = new EncryptedSocket(clientSocket);
     this.clientCount = clientCountMonitor;
     this.broadcastService = broadcastService;
@@ -62,7 +60,6 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   private void disconnect() {
     broadcastService.unregisterListener(this);
-    thisUser.setLoggedIn(false);
     if (!clientSocket.isClosed()) {
       clientCount.decrementClientCount();
       System.out.println("Client disconnected. Client count is:" +

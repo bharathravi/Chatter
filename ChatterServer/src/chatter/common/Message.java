@@ -8,11 +8,16 @@ import java.awt.*;
  */
 public class Message {
 
+  public static byte[] createPublicKeyMessage(byte[] pKeyBytes) {
+    return pKeyBytes;
+  }
+
   public enum MessageType {
-    CHAT, // A chat message
-    QUIT, // A QUIT message
-    AUTH, // An AUTH message
-    OKAY
+    CHAT, // A chat message, containging actual chat text.
+    QUIT, // A QUIT message, snet by either party when it terminates its end of the connection.
+    AUTH, // An AUTH message, used by the client to send its user name and password.
+    OKAY, // An OKAY message, sent by the server to let the client know that things are fine.
+    PKEY, // A Public key message, sent by either party to exchange keys.
   }
 
   public MessageType type;

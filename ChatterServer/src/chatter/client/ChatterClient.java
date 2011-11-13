@@ -3,14 +3,10 @@ package chatter.client;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import chatter.common.Constants;
-import chatter.common.EncryptedSocket;
-import chatter.common.InvalidMessageException;
-import chatter.common.Message;
-
-import static chatter.common.Constants.QUIT_MESSAGE;
+import chatter.common.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,6 +26,22 @@ public class ChatterClient {
 
   public void start() {
     try {
+//      try {
+//        // Create the parameter generator for a 1024-bit DH key pair
+//        AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator.getInstance("DH");
+//        paramGen.init(1024);
+//
+//        // Generate the parameters
+//        AlgorithmParameters params = paramGen.generateParameters();
+//        DHParameterSpec dhSpec
+//            = (DHParameterSpec)params.getParameterSpec(DHParameterSpec.class);
+//
+//        // Return the three values in a string
+//        System.out.println(""+dhSpec.getP()+"\n"+dhSpec.getG()+"\n"+dhSpec.getL());
+//    } catch (NoSuchAlgorithmException e) {
+//    } catch (InvalidParameterSpecException e) {
+//    }
+
       InetAddress address = InetAddress.getByName(Constants.HOST);
       connection = new EncryptedSocket(new Socket(address, Constants.PORT));
 
@@ -109,7 +121,9 @@ public class ChatterClient {
       System.out.println("IO Exception while creating socket");
       e.printStackTrace();
     } catch (InvalidMessageException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+      e.printStackTrace();
+    } catch (DiffieHellmanException e) {
+      e.printStackTrace();
     } finally {
       try {
         connection.close();
@@ -123,37 +137,41 @@ public class ChatterClient {
   private void createServerThread() {
     final EncryptedSocket finalConnection = connection;
     serverThread = new Thread(new Runnable() {
-    public void run() {
-      // Main while loop of the client. Endlessly wait for messages from server
-      // and print them out.
-      boolean quit = false;
-      while (!quit) {
-        String responseLine = null;
+      public void run() {
+        // Main while loop of the client. Endlessly wait for messages from server
+        // and print them out.
+        boolean quit = false;
         try {
-          responseLine = finalConnection.readLine();
-          Message msg = new Message(responseLine);
-          switch (msg.type) {
-            case QUIT:
-              System.out.println("Server has quit.");
-              quit = true;
-              break;
-            case CHAT:
-              System.out.println(msg.messageContent);
-              break;
-            default:
-              System.out.println("I have no clue what the heck just happened,\n" +
-                  "but I'm going to nod and smile like I understood.");
+          while (!quit) {
+            String responseLine = null;
+            responseLine = finalConnection.readLine();
+            Message msg = new Message(responseLine);
+            switch (msg.type) {
+              case QUIT:
+                System.out.println("Server has quit.");
+                quit = true;
+                break;
+              case CHAT:
+                System.out.println(msg.messageContent);
+                break;
+              default:
+                System.out.println("I have no clue what the heck just happened,\n" +
+                    "but I'm going to nod and smile like I understood.");
+            }
           }
-
           disconnect();
+        } catch (SocketException e) {
+          System.out.println("Socket exception");
+          e.printStackTrace();
+          return;
         } catch (IOException e) {
           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (InvalidMessageException e) {
           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
       }
-    }
-  });
+    });
   }
 
   private static void disconnect() throws IOException {

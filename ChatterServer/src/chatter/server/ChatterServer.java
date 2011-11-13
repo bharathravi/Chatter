@@ -1,6 +1,7 @@
 package chatter.server;
 
 import chatter.common.Constants;
+import chatter.common.DiffieHellmanException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,6 +41,9 @@ public class ChatterServer {
         }
       }
     } catch (IOException e) {
+      e.printStackTrace();
+    } catch (DiffieHellmanException e) {
+      System.out.println("Could not create encrypted socket.");
       e.printStackTrace();
     }
   }
