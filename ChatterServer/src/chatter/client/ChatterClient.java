@@ -9,11 +9,15 @@ import java.net.UnknownHostException;
 import chatter.common.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 3:11 PM
- * To change this template use File | Settings | File Templates.
+ * The basic client algorithm is as follows:
+ * 1. Create a Socket to the server
+ * 2. Use the socket to create an EncryptedSocket.
+ * 3. All further messaging should be done using only the encrypted socket.
+ * 4. First authenticate using uname + passwd.
+ * 5. Start listening for either:
+ *     a. Chats from server
+ *     b. Input from client
+ * 6. If user says "\quit" then send a QUIT message to server and close.
  */
 public class ChatterClient {
   private static Thread serverThread;
