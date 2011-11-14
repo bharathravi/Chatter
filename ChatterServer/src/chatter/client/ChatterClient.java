@@ -138,7 +138,7 @@ public class ChatterClient {
     final EncryptedSocket finalConnection = connection;
     serverThread = new Thread(new Runnable() {
       public void run() {
-        // Main while loop of the client. Endlessly wait for messages from server
+        // ChatterServerMain while loop of the client. Endlessly wait for messages from server
         // and print them out.
         boolean quit = false;
         try {
