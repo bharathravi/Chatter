@@ -1,5 +1,6 @@
 package chatter.server;
 
+import chatter.common.CryptoException;
 import chatter.common.Constants;
 import chatter.common.DiffieHellmanException;
 
@@ -35,9 +36,13 @@ public class ChatterServer {
           // Increment the clientCount at this point, so that we don't even bother
           // authenticating if there are too many clients connected.
           clientCountMonitor.incrementClientCount();
-          new Thread(
-              new ClientHandler(clientSocket, clientCountMonitor, broadcastService)
-          ).start();
+          try {
+            new Thread(
+                new ClientHandler(clientSocket, clientCountMonitor, broadcastService)
+            ).start();
+          } catch (CryptoException e) {
+            e.printStackTrace();
+          }
         }
       }
     } catch (IOException e) {

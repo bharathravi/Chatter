@@ -14,7 +14,7 @@ public class Constants {
   public static final int PORT=50154;
   public static final String HOST="localhost";
   public static final int MAXCLIENTS=4;
-  public static final int AUTHENTICATION_TIMEOUT = 30000;
+  public static final int AUTHENTICATION_TIMEOUT = 300000;
   public static final int CHAT_TIMEOUT = 300000;
   public static final int TEXT_LIMIT = 10000;
   public static final char PASSWORD_SEPARATOR = ',';
@@ -25,5 +25,4 @@ public class Constants {
   public static final BigInteger G = new BigInteger("21297782867125852211965421360065124617460137303499559381094931685304391685003406453379040479145815123034722781565087951907235444626749305975079465057842189639275312756609155194906728865907677241310941556966388987683709915061271860625168841381797400499944349852651108121179902324271491652816832731399587688291");
   public static final int L = 1023;
   public static final String ENCRYPTION_ALGORITHM = "DES";
-  public static final int PUBLIC_KEY_LENGTH_BYTES = 425;
 }

@@ -1,5 +1,7 @@
 package chatter.client;
 
+import chatter.common.CryptoException;
+
 /**
  * Created by IntelliJ IDEA.
  * User: bharath
@@ -9,7 +11,7 @@ package chatter.client;
  */
 public class ChatterMain {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws CryptoException {
     ChatterClient client = new ChatterClient();
     client.start();
 

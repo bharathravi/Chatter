@@ -4,7 +4,6 @@ import javax.crypto.SecretKey;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
-import java.security.*;
 
 import static chatter.common.Constants.*;
 
@@ -21,22 +20,20 @@ public class EncryptedSocket implements PublicKeyCommunicator{
 
   private Socket socket;
   private SecretKey secretKey;
+  private CryptoService cryptoService;
 
-  public EncryptedSocket(Socket socket) throws DiffieHellmanException, IOException {
+  public EncryptedSocket(Socket socket)
+      throws DiffieHellmanException, IOException, CryptoException {
     this.socket = socket;
     setTimeout(Constants.AUTHENTICATION_TIMEOUT);
 
     // Actual work in constructor is not great. But do it anyway :-/
     DiffieHelmanKeyGenerator dhGenerator = new DiffieHelmanKeyGenerator(this);
     this.secretKey = dhGenerator.generate();
+    this.cryptoService = new CryptoService(secretKey);
+    setTimeout(Constants.CHAT_TIMEOUT);
   }
 
-  private void printBytes(byte[] pKeyBytes) {
-    for (int i = 0 ; i< pKeyBytes.length; ++i) {
-      System.out.print(pKeyBytes[i]);
-      System.out.print(' ');
-    }
-  }
 
   public byte[] getPublicKeyBytes() throws IOException {
     DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -47,22 +44,20 @@ public class EncryptedSocket implements PublicKeyCommunicator{
     return bytes;
   }
 
-  public void sendLine(String line) throws IOException {
-    // TODO(bharath): Apply suitable encryption before sending.
+  public void sendLine(String line) throws IOException, CryptoException {
     OutputStream output = socket.getOutputStream();
-    line += '\n';
-    output.write(line.getBytes());
+    String encryptedLine = cryptoService.encrypt(line) + '\n';
+    output.write(encryptedLine.getBytes());
   }
 
   public void sendPublicKeyBytes(byte[] bytes) throws IOException {
-    // TODO(bharath): Apply suitable encryption before sending.
     OutputStream output = socket.getOutputStream();
     DataOutputStream dos = new DataOutputStream(output);
     dos.writeInt(bytes.length);
     dos.write(bytes);
   }
 
-  public String readLine() throws IOException {
+  public String readLine() throws IOException, CryptoException {
     // TODO(bharath): Apply suitable decryption after reading.
     String line = "";
     try {
@@ -73,18 +68,20 @@ public class EncryptedSocket implements PublicKeyCommunicator{
 
       int c;
       while((c=inputReader.read()) != '\n') {
-        line += (char)c;
-        if (line.length() >= TEXT_LIMIT) {
-          // Too long a line. Just return whatever we have up until now.
-          break;
+        if (line.length() < TEXT_LIMIT) {
+          // For too long a line, ignore the rest, even if it means failing to
+          // decrypt something.
+          line += (char)c;
         }
       }
-
     } catch (SocketException e) {
       throw e;
     }
 
-    return line;
+   // System.out.println("enc:" + line);
+   // System.out.println("dec:" + cryptoService.decrypt(line));
+
+    return cryptoService.decrypt(line);
   }
 
   public void setTimeout(int timeout) throws SocketException {

@@ -24,7 +24,7 @@ public class ChatterClient {
 
   }
 
-  public void start() {
+  public void start() throws CryptoException {
     try {
 //      try {
 //        // Create the parameter generator for a 1024-bit DH key pair
@@ -167,6 +167,8 @@ public class ChatterClient {
         } catch (IOException e) {
           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         } catch (InvalidMessageException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (CryptoException e) {
           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 

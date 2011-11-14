@@ -33,5 +33,7 @@ public class UserDatabase {
         new User("bharath", "7616b81196ee6fe328497da3f1d9912d"));
     database.put("alban",
         new User("alban", "5eb26d87e6361dc7c8ed07b9db7911d"));
+    database.put("kapil",
+        new User("kapil", "3499776ee73013a17c9ce7c3c3b252e5"));
   }
 }

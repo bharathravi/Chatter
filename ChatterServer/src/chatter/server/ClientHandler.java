@@ -21,7 +21,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
   public ClientHandler(Socket clientSocket,
                        ClientCountMonitor clientCountMonitor,
                        BroadcastService broadcastService) throws IOException,
-      DiffieHellmanException {
+      DiffieHellmanException, CryptoException {
     this.clientSocket = new EncryptedSocket(clientSocket);
     this.clientCount = clientCountMonitor;
     this.broadcastService = broadcastService;
@@ -52,7 +52,9 @@ public class ClientHandler implements Runnable, BroadcastListener {
       e.printStackTrace();
     } catch (InvalidMessageException e) {
       System.out.println("Ignoring Invalid/Unexpected message received");
-      //e.printStackTrace();
+      e.printStackTrace();
+    } catch (CryptoException e) {
+      System.out.println("Error decrypting or encrypting message");
     } finally {
       disconnect();
     }
@@ -75,25 +77,33 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   private void startChatting() throws IOException, InvalidMessageException {
     while(true) {
-      String line = clientSocket.readLine();
-      Message msg = new Message(line);
+      String line = null;
+      try {
+        line = clientSocket.readLine();
+        Message msg = new Message(line);
 
-      System.out.println(thisUser.getUserName() + " says: " + line);
-      switch (msg.type) {
-        case AUTH: //Ignore, the client is already authenticated.
-          break;
-        case QUIT:
-          System.out.println("User " + thisUser.getUserName() +" has quit");
-          return;
-        case CHAT:
-          broadcastLine(
-              Message.createChatMessage(
-                  thisUser.getUserName() + ": " + msg.messageContent));
-          break;
-        default:
-          System.out.println("I have no clue what the heck just happened,\n" +
-              "but I'm going to nod and smile like I understood.");
+        System.out.println(thisUser.getUserName() + " says: " + line);
+        switch (msg.type) {
+          case AUTH: //Ignore, the client is already authenticated.
+            break;
+          case QUIT:
+            System.out.println("User " + thisUser.getUserName() +" has quit");
+            return;
+          case CHAT:
+            broadcastLine(
+                Message.createChatMessage(
+                    thisUser.getUserName() + ": " + msg.messageContent));
+            break;
+          default:
+            System.out.println("I have no clue what the heck just happened,\n" +
+                "but I'm going to nod and smile like I understood.");
+        }
+      } catch (CryptoException e) {
+        // If there was an encryption error, don't stop,
+        // just ignore/log it and continue
+        e.printStackTrace();
       }
+
     }
   }
 
@@ -108,16 +118,22 @@ public class ClientHandler implements Runnable, BroadcastListener {
   private boolean authenticateClient() throws IOException,
       InvalidMessageException {
     //clientSocket.sendLine("PASS");
-    String line = clientSocket.readLine();
-    Message msg = new Message(line);
+    String line = null;
+    try {
+      line = clientSocket.readLine();
 
-    if (msg.type == Message.MessageType.AUTH) {
-      System.out.println("Client says: " + msg.messageContent);
-      ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
-      if(auth.authenticate()) {
-        thisUser = UserDatabase.getInstance().database.get(auth.uname);
-        return true;
+      Message msg = new Message(line);
+
+      if (msg.type == Message.MessageType.AUTH) {
+        System.out.println("Client says: " + msg.messageContent);
+        ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
+        if(auth.authenticate()) {
+          thisUser = UserDatabase.getInstance().database.get(auth.uname);
+          return true;
+        }
       }
+    } catch (CryptoException e) {
+      e.printStackTrace();
     }
 
     return false;
@@ -125,6 +141,10 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   public void onBroadcast(String message) throws IOException {
     System.out.println("Sending message:" + message);
-    clientSocket.sendLine(message);
+    try {
+      clientSocket.sendLine(message);
+    } catch (CryptoException e) {
+      e.printStackTrace();
+    }
   }
 }

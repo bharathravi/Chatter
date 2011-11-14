@@ -17,7 +17,6 @@ public class Message {
     QUIT, // A QUIT message, snet by either party when it terminates its end of the connection.
     AUTH, // An AUTH message, used by the client to send its user name and password.
     OKAY, // An OKAY message, sent by the server to let the client know that things are fine.
-    PKEY, // A Public key message, sent by either party to exchange keys.
   }
 
   public MessageType type;
@@ -52,19 +51,19 @@ public class Message {
 
   public static String createAuthMessage(String username, String password) {
     return MessageType.AUTH + username +
-        Constants.PASSWORD_SEPARATOR + password +"\n";
+        Constants.PASSWORD_SEPARATOR + password;
   }
 
   public static String createQuitMessage() {
-    return MessageType.QUIT + "\n";
+    return MessageType.QUIT.toString();
   }
 
   public static String createOkayMessage() {
-    return MessageType.OKAY + "\n";
+    return MessageType.OKAY.toString();
   }
 
 
   public static String createChatMessage(String chatText) {
-    return MessageType.CHAT + chatText + "\n";
+    return MessageType.CHAT + chatText;
   }
 }
