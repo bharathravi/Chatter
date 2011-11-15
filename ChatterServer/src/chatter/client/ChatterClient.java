@@ -93,51 +93,39 @@ public class ChatterClient {
           System.out.println("Error reading chat");
         }
       }
-
-
-//
-//          System.out.println("Password : ");
-
-//
-//        String responseLine;
-//        String optext;
-//        while (true) {
-//          responseLine = connection.readLine();
-//          msg = new Message(responseLine);
-//
-//          switch (msg.type) {
-//            case QUIT:
-//              System.out.println("Server has quit.");
-//          }
-//
-//          System.out.println("Server: " + responseLine);
-//          if (responseLine.indexOf("Ok") != -1) {
-//            break;
-//          }
-//          optext = readChat.readLine();
-//          connection.sendLine(optext);
-//        }
-
     } catch (UnknownHostException e) {
-      System.out.println("Unknown address");
-      e.printStackTrace();
+      System.out.println("Unknown server address. " +
+          "Please verify that the hostname of the server is correct.");
     } catch (IOException e) {
-      System.out.println("IO Exception while creating socket");
-      e.printStackTrace();
+      System.out.println("Unable to create a connection to the server:" +
+          "The server may be down. Please verify that you can connect to the" +
+          "internet");
     } catch (InvalidMessageException e) {
-      e.printStackTrace();
+      System.out.println("An invalid message was received from the server.");
     } catch (DiffieHellmanException e) {
-      e.printStackTrace();
+      System.out.println("Unable to create an encrypted connection.");
     } finally {
-      try {
-        connection.close();
-      } catch (IOException e) {
-        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-      }
+      shutdown();
     }
 
   }
 
+  public void shutdown() {
+    try {
+      if (connection!= null && !connection.isClosed()) {
+        connection.close();
+      }
+    } catch (IOException e) {
+      System.out.println("Unexpected error while terminating client:");
+      e.printStackTrace();
+    }
+
+  }
+
+  /**
+   * Creates a thread that endlessly loops waiting for chat messages from
+   * the server and printing them when it receives any.
+   */
   private void createServerThread() {
     final EncryptedSocket finalConnection = connection;
     serverThread = new Thread(new Runnable() {

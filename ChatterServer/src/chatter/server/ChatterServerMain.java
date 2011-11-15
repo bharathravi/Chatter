@@ -9,9 +9,17 @@ package chatter.server;
  */
 public class ChatterServerMain {
   public static void main(String[] args) {
-    ChatterServer server = new ChatterServer();
-    server.startListening();
+    final ChatterServer server = new ChatterServer();
 
-    //TODO(bharath) Figure out ^C handling
+    // Add a shutdown hook.
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        System.out.println("Shutting down server...");
+        server.stopServer();
+        System.out.println("Done. Bye!");
+      }
+    });
+
+    server.startListening();
   }
 }
