@@ -1,9 +1,8 @@
 package chatter.server;
 
-import chatter.common.*;
+import common.*;
 
 import java.io.*;
-import java.net.Socket;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,11 +17,10 @@ public class ClientHandler implements Runnable, BroadcastListener {
   private ClientCountMonitor clientCount;
   private BroadcastService broadcastService;
 
-  public ClientHandler(Socket clientSocket,
+  public ClientHandler(EncryptedSocket clientSocket,
                        ClientCountMonitor clientCountMonitor,
-                       BroadcastService broadcastService) throws IOException,
-      DiffieHellmanException, CryptoException {
-    this.clientSocket = new EncryptedSocket(clientSocket);
+                       BroadcastService broadcastService) {
+    this.clientSocket = clientSocket;
     this.clientCount = clientCountMonitor;
     this.broadcastService = broadcastService;
     broadcastService.registerListener(this);
@@ -41,6 +39,8 @@ public class ClientHandler implements Runnable, BroadcastListener {
         // If the client was able to authenticate itself, then
         // proceed with the chat stuff.
         clientSocket.sendLine(Message.createOkayMessage());
+        broadcastLine(Message.createChatMessage(
+            thisUser.getUserName() + " has logged in."));
         startChatting();
       } else {
         clientSocket.sendLine(Message.createQuitMessage());
@@ -49,12 +49,12 @@ public class ClientHandler implements Runnable, BroadcastListener {
       System.out.println("Closing client due to time-out");
     } catch (IOException e) {
       System.out.println("Closing client due IO Exception");
-      e.printStackTrace();
+      //e.printStackTrace();
     } catch (InvalidMessageException e) {
-      System.out.println("Ignoring Invalid/Unexpected message received");
-      e.printStackTrace();
+      System.out.println("Invalid/Unexpected message received");
+      //e.printStackTrace();
     } catch (CryptoException e) {
-      System.out.println("Error decrypting or encrypting message");
+      System.out.println("Error in encryption/decryption");
     } finally {
       disconnect();
     }
@@ -69,82 +69,68 @@ public class ClientHandler implements Runnable, BroadcastListener {
       try {
         clientSocket.close();
       } catch (IOException e) {
-        System.out.println("Unable to close socket.");
-        e.printStackTrace();
+        System.out.println("Error closing socket.");
       }
     }
   }
 
-  private void startChatting() throws IOException, InvalidMessageException {
+  private void startChatting() throws IOException, InvalidMessageException, CryptoException {
     while(true) {
-      String line = null;
-      try {
-        line = clientSocket.readLine();
-        Message msg = new Message(line);
+      String line = clientSocket.readLine();
+      Message msg = new Message(line);
 
-        System.out.println(thisUser.getUserName() + " says: " + line);
-        switch (msg.type) {
-          case AUTH: //Ignore, the client is already authenticated.
-            break;
-          case QUIT:
-            System.out.println("User " + thisUser.getUserName() +" has quit");
-            return;
-          case CHAT:
-            broadcastLine(
-                Message.createChatMessage(
-                    thisUser.getUserName() + ": " + msg.messageContent));
-            break;
-          default:
-            System.out.println("I have no clue what the heck just happened,\n" +
-                "but I'm going to nod and smile like I understood.");
-        }
-      } catch (CryptoException e) {
-        // If there was an encryption error, don't stop,
-        // just ignore/log it and continue
-        e.printStackTrace();
+      System.out.println(thisUser.getUserName() + " says: " + line);
+      switch (msg.type) {
+        case AUTH: //Ignore, the client is already authenticated.
+          break;
+        case QUIT:
+          System.out.println("User " + thisUser.getUserName() +" has quit");
+          broadcastLine(Message.createChatMessage(
+              "User " + thisUser.getUserName() +" has quit"));
+          return;
+        case CHAT:
+          broadcastLine(
+              Message.createChatMessage(
+                  thisUser.getUserName() + ": " + msg.messageContent));
+          break;
+        default:
+          System.out.println("I have no clue what the heck just happened,\n" +
+              "but I'm going to nod and smile like I understood.");
       }
-
     }
   }
 
-  private void broadcastLine(String line) throws IOException {
+  private void broadcastLine(String line) throws IOException, CryptoException {
     broadcastService.sendBroadcast(line);
   }
 
-  private void setupEncryption() {
-    // Add in Diffie Helman key exchange here.
-  }
-
   private boolean authenticateClient() throws IOException,
-      InvalidMessageException {
+      InvalidMessageException, CryptoException {
     //clientSocket.sendLine("PASS");
-    String line = null;
-    try {
-      line = clientSocket.readLine();
+    String line = clientSocket.readLine();
 
-      Message msg = new Message(line);
+    Message msg = new Message(line);
 
-      if (msg.type == Message.MessageType.AUTH) {
-        System.out.println("Client says: " + msg.messageContent);
-        ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
-        if(auth.authenticate()) {
-          thisUser = UserDatabase.getInstance().database.get(auth.uname);
-          return true;
-        }
+    if (msg.type == Message.MessageType.AUTH) {
+      System.out.println("Client says: " + msg.messageContent);
+      ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
+      if(auth.authenticate()) {
+        thisUser = UserDatabase.getInstance().database.get(auth.uname);
+        return true;
       }
-    } catch (CryptoException e) {
-      e.printStackTrace();
     }
 
     return false;
   }
 
-  public void onBroadcast(String message) throws IOException {
+  public void onBroadcast(String message) throws IOException, CryptoException {
     System.out.println("Sending message:" + message);
-    try {
-      clientSocket.sendLine(message);
-    } catch (CryptoException e) {
-      e.printStackTrace();
-    }
+    clientSocket.sendLine(message);
+  }
+
+  public void onBroadcastShutdown() throws IOException, CryptoException {
+    // Safely close the connection.
+    clientSocket.sendLine(Message.createQuitMessage());
+    disconnect();
   }
 }

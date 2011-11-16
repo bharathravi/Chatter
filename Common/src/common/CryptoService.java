@@ -1,4 +1,4 @@
-package chatter.common;
+package common;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -20,7 +20,14 @@ class CryptoService {
 
   CryptoService(SecretKey key) throws CryptoException {
     try {
-      byte[] raw = key.getEncoded();
+      // Use the first 16 bits of the secret to get a 128 but AES key.
+      byte[] raw = new byte[16];
+      byte[] secret = key.getEncoded();
+
+      for (int i = 0; i < 16; ++i) {
+        raw[i] = secret[i];
+      }
+
       SecretKeySpec keySpec =
           new SecretKeySpec(raw, Constants.ENCRYPTION_ALGORITHM);
 

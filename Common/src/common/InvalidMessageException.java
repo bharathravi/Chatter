@@ -1,4 +1,4 @@
-package chatter.common;
+package common;
 
 /**
  * Created by IntelliJ IDEA.

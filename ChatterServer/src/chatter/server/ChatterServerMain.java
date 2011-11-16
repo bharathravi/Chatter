@@ -11,14 +11,14 @@ public class ChatterServerMain {
   public static void main(String[] args) {
     final ChatterServer server = new ChatterServer();
 
-    // Add a shutdown hook.
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-        System.out.println("Shutting down server...");
-        server.stopServer();
-        System.out.println("Done. Bye!");
-      }
-    });
+//    // Add a shutdown hook.
+//    Runtime.getRuntime().addShutdownHook(new Thread() {
+//      public void run() {
+//        System.out.println("Shutting down server...");
+//        server.shutdown();
+//        System.out.println("Done. Bye!");
+//      }
+//    });
 
     server.startListening();
   }

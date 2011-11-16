@@ -23,17 +23,28 @@ public class UserDatabase {
 
 
   private UserDatabase(){
-    try {
+ /* try {
       MessageDigest md5 = MessageDigest.getInstance("MD5");
+      md5.update("n)(3A93nA42a".getBytes());
+      md5.update("bharath".getBytes());
+
+      byte[] b = md5.digest();
+      for (int i=0; i<b.length; ++i) {
+        System.out.print(b[i]));
+      }
     } catch (NoSuchAlgorithmException e) {
       System.out.println("Unable to create an MD5 hasher.");
       e.printStackTrace();
-    }
+    }        */
+
+
+
+
     database.put("bharath",
-        new User("bharath", "7616b81196ee6fe328497da3f1d9912d"));
+        new User("bharath", "42087791f544a461d62ea987de101695","n)(3A93nA42a2946"));
     database.put("alban",
-        new User("alban", "5eb26d87e6361dc7c8ed07b9db7911d"));
+        new User("alban", "46d49b3bc19b9e42979e6806aa4abb44", "(FNXO#ns&fd91956"));
     database.put("kapil",
-        new User("kapil", "3499776ee73013a17c9ce7c3c3b252e5"));
+        new User("kapil", "3b78c7dfa5c11aac1c2644db407ddf5","}{fm09x)ncTT8456"));
   }
 }

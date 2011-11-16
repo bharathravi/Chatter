@@ -1,6 +1,4 @@
-package chatter.common;
-
-import java.io.IOException;
+package common;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,5 +9,6 @@ import java.io.IOException;
  */
 public class DiffieHellmanException extends Exception {
   public DiffieHellmanException(Exception e) {
+    super(e);
   }
 }

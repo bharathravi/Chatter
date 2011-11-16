@@ -1,6 +1,4 @@
-package chatter.common;
-
-import java.awt.*;
+package common;
 
 /**
  * Defines a message. A message consists of a 4 character header

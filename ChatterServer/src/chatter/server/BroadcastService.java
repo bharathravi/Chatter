@@ -1,5 +1,7 @@
 package chatter.server;
 
+import common.CryptoException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +19,15 @@ public class BroadcastService {
 
   BroadcastService() {}
 
-  public void sendBroadcast(String message) throws IOException {
+  public void sendBroadcast(String message) throws IOException, CryptoException {
     for (BroadcastListener listener: listeners) {
       listener.onBroadcast(message);
+    }
+  }
+
+  public void sendShutdown() throws CryptoException, IOException {
+    for (BroadcastListener listener: listeners) {
+      listener.onBroadcastShutdown();
     }
   }
 

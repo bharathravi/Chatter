@@ -1,8 +1,6 @@
 package chatter.server;
 
-import chatter.common.CryptoException;
-import chatter.common.Constants;
-import chatter.common.DiffieHellmanException;
+import common.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,16 +18,19 @@ public class ChatterServer {
 
   private boolean isStopped = false;
   private ServerSocket serverSocket = null;
+  private BroadcastService broadcastService;
 
   ChatterServer() {}
 
   public void startListening() {
     this.isStopped = false;
     final ClientCountMonitor clientCountMonitor = new ClientCountMonitor();
-    final BroadcastService broadcastService = new BroadcastService();
+    broadcastService = new BroadcastService();
+
 
     try {
       serverSocket = new ServerSocket(Constants.PORT);
+
       while (!isStopped) {
         System.out.println("Current client count is " +
             clientCountMonitor.getClientCount());
@@ -42,46 +43,28 @@ public class ChatterServer {
           clientCountMonitor.incrementClientCount();
           try {
             new Thread(
-                new ClientHandler(clientSocket, clientCountMonitor, broadcastService)
+                new ClientHandler(new EncryptedSocket(clientSocket),
+                    clientCountMonitor, broadcastService)
             ).start();
           } catch (CryptoException e) {
-            System.out.println("Error in encryption. Closing client socket");
-            closeClientConnection(clientSocket);
+            System.out.println("Error in encryption. Closing client socket.");
           } catch (DiffieHellmanException e) {
             System.out.println("Unable to create an encrypted connection.");
-            closeClientConnection(clientSocket);
-          } catch (IOException e) {
-            System.out.println("Unable to create an encrypted connection.");
-            closeClientConnection(clientSocket);
           }
         }
       }
     } catch (IOException e) {
-      System.out.println("Error Setting up server socket.");
-    } finally {
-      closeServerSocket();
+      System.out.println("Error starting up server");
+      e.printStackTrace();
     }
   }
 
 
   private void rejectClient(Socket clientSocket) {
-    OutputStream output = null;
     try {
-      output = clientSocket.getOutputStream();
-      System.out.println("Rejecting client because client count is above limit");
-      output.write("I'm full. Bye.\0".getBytes());
-      closeClientConnection(clientSocket);
-    } catch (IOException e) {
-      System.out.println("Error closing client socket. " +
-          "Ignoring and continuing execution");
-    }
-  }
-
-  private void closeClientConnection(Socket clientSocket) {
-    try {
-      if (clientSocket!=null && !clientSocket.isClosed()) {
-        clientSocket.close();
-      }
+      OutputStream output = clientSocket.getOutputStream();
+      output.write((Message.createQuitMessage() + "\n").getBytes());
+      clientSocket.close();
     } catch (IOException e) {
       System.out.println("Error closing client socket. " +
           "Ignoring and continuing execution");
@@ -98,9 +81,19 @@ public class ChatterServer {
     }
   }
 
-  public void stopServer() {
-    // Add in any other termination cases here.
+  public void shutdown() {
+    // Add in any termination cases here.
+    try {
+      broadcastService.sendShutdown();
+    } catch (CryptoException e) {
+      System.out.println("Error while shutting down");
+      e.printStackTrace();
+    } catch (IOException e) {
+      System.out.println("Error while shutting down");
+      e.printStackTrace();
+    }
     isStopped = true;
+    closeServerSocket();
   }
 
 

@@ -1,6 +1,6 @@
 package chatter.server;
 
-import chatter.common.Constants;
+import common.Constants;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -27,16 +27,21 @@ public class ClientAuthenticator {
 
   public synchronized boolean authenticate() {
     try {
-      MessageDigest md5 = MessageDigest.getInstance("MD5");
-      byte[] passwdHash = md5.digest(passwd.getBytes());
-      BigInteger number = new BigInteger(1, passwdHash);
-      String hashtext = number.toString(16);
-
-      System.out.println(uname);
-      System.out.println(database.database.get(uname).getPasswordHash());
-      System.out.println(hashtext);
+      MessageDigest md5 = MessageDigest.getInstance(
+          Constants.HASHING_ALGORITHM);
       if (database.database.containsKey(uname)) {
         User user = database.database.get(uname);
+        md5.update(user.getSalt().getBytes());
+        md5.update(passwd.getBytes());
+        byte[] passwdHash = md5.digest();
+        BigInteger number = new BigInteger(1, passwdHash);
+        String hashtext = number.toString(16);
+
+
+        System.out.println(hashtext);
+        System.out.println(uname);
+        System.out.println(database.database.get(uname).getPasswordHash());
+
 
         if(user.getPasswordHash().equals(hashtext))
           return true;

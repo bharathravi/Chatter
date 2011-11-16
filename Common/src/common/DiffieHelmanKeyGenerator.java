@@ -1,4 +1,4 @@
-package chatter.common;
+package common;
 
 import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
@@ -8,9 +8,9 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
-import static chatter.common.Constants.G;
-import static chatter.common.Constants.L;
-import static chatter.common.Constants.P;
+import static common.Constants.G;
+import static common.Constants.L;
+import static common.Constants.P;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,33 +26,20 @@ public class DiffieHelmanKeyGenerator {
     this.communicator = communicator;
   }
 
-  public SecretKey generate() throws DiffieHellmanException {
-    try {
-      KeyPair keys = generateKeyPair();
-      PublicKey myPublicKey = keys.getPublic();
-      communicator.sendPublicKeyBytes(myPublicKey.getEncoded());
-      PublicKey theirPublicKey = getOtherPublicKey();
+  public SecretKey generate() throws DiffieHellmanException,
+      PublicKeyCommunicationException, InvalidKeyException,
+      NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeySpecException {
 
-      return generateSecretKey(keys, theirPublicKey);
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      throw new DiffieHellmanException(e);
-    } catch (InvalidKeyException e) {
-      e.printStackTrace();
-      throw new DiffieHellmanException(e);
-    } catch (InvalidKeySpecException e) {
-      e.printStackTrace();
-      throw new DiffieHellmanException(e);
-    } catch (InvalidAlgorithmParameterException e) {
-      e.printStackTrace();
-      throw new DiffieHellmanException(e);
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new DiffieHellmanException(e);
-    }
+    KeyPair keys = generateKeyPair();
+    PublicKey myPublicKey = keys.getPublic();
+    communicator.sendPublicKeyBytes(myPublicKey.getEncoded());
+    PublicKey theirPublicKey = getOtherPublicKey();
+
+    return generateSecretKey(keys, theirPublicKey);
   }
 
-  private SecretKey generateSecretKey(KeyPair keys, PublicKey theirPublicKey) throws NoSuchAlgorithmException, InvalidKeyException {
+  private SecretKey generateSecretKey(KeyPair keys, PublicKey theirPublicKey)
+      throws NoSuchAlgorithmException, InvalidKeyException {
     // Prepare to generate the secret key with the
     // private key and public key of the other party
     KeyAgreement ka = KeyAgreement.getInstance("DH");
@@ -78,16 +65,18 @@ public class DiffieHelmanKeyGenerator {
   }
 
   private PublicKey getOtherPublicKey()
-      throws InvalidKeySpecException, NoSuchAlgorithmException, IOException {
-    PublicKey pKey = null;
+      throws InvalidKeySpecException, NoSuchAlgorithmException,
+      PublicKeyCommunicationException {
+    PublicKey pKey;
 
-    byte[] pKeyBytes =  communicator.getPublicKeyBytes();
+    byte[] pKeyBytes = new byte[0];
+
+    pKeyBytes = communicator.getPublicKeyBytes();
 
     // Convert the public key bytes into a PublicKey object
     X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(pKeyBytes);
     KeyFactory keyFact = KeyFactory.getInstance("DH");
     pKey = keyFact.generatePublic(x509KeySpec);
-
 
     return pKey;
   }

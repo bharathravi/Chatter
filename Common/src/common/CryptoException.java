@@ -1,6 +1,4 @@
-package chatter.common;
-
-import java.security.NoSuchAlgorithmException;
+package common;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,5 +9,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class CryptoException extends Exception {
   public CryptoException(Exception e) {
+    super(e);
   }
 }

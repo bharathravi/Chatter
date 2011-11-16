@@ -10,16 +10,22 @@ package chatter.server;
 public class User {
   private String userName;
   private String passwordHash;
+  private String salt;
   private boolean loggedIn;
 
-  public User(String userName, String passwordHash) {
+  public User(String userName, String passwordHash, String salt) {
     this.userName = userName;
     this.passwordHash = passwordHash;
+    this.salt = salt;
     this.loggedIn = false;
   }
 
   public String getPasswordHash() {
     return passwordHash;
+  }
+
+  public String getSalt() {
+    return salt;
   }
 
   public String getUserName() {

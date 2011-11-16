@@ -1,6 +1,6 @@
-package chatter.client;
+package client;
 
-import chatter.common.CryptoException;
+import common.CryptoException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,14 +14,14 @@ public class ChatterClientMain {
   public static void main(String[] args) throws CryptoException {
     final ChatterClient client = new ChatterClient();
 
-    // Add a shutdown hook.
+   /* // Add a shutdown hook.
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         System.out.println("Shutting down...");
         client.shutdown();
         System.out.println("Done. Bye!");
       }
-    });
+    });*/
 
     client.start();
 
