@@ -49,7 +49,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
       System.out.println("Closing client due to time-out");
     } catch (IOException e) {
       System.out.println("Closing client due IO Exception");
-      //e.printStackTrace();
+      e.printStackTrace();
     } catch (InvalidMessageException e) {
       System.out.println("Invalid/Unexpected message received");
       //e.printStackTrace();

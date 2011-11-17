@@ -1,5 +1,6 @@
 package client;
 
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 import common.*;
 
 import java.io.*;
@@ -51,7 +52,7 @@ public class ChatterClient {
         startChatLoop();
       }
     } catch (IOException e) {
-      System.out.println("Error creating a connection to the server.");
+      System.out.println("Cannot connect to the server.");
       e.printStackTrace();
     } catch (InvalidMessageException e) {
       System.out.println("Invalid message received.");
@@ -71,7 +72,6 @@ public class ChatterClient {
     BufferedReader readChat = new BufferedReader(inputStreamReader);
 
     while (true) {
-      System.out.print("Chat: ");
       String chatText = readChat.readLine();
       if (chatText.equals(Constants.QUIT_MESSAGE)){
         connection.sendLine(Message.createQuitMessage());
