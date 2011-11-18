@@ -1,13 +1,18 @@
 package common;
 
 import javax.crypto.SecretKey;
+import javax.xml.soap.Text;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 import static common.Constants.*;
 
@@ -44,8 +49,6 @@ public class EncryptedSocket implements PublicKeyCommunicator {
     } catch (InvalidKeyException e) {
       throw new DiffieHellmanException(e);
     }
-    System.out.println(secretKey.getAlgorithm());
-    System.out.println(secretKey.getEncoded().length);
     this.cryptoService = new CryptoService(secretKey);
   }
 
@@ -65,9 +68,11 @@ public class EncryptedSocket implements PublicKeyCommunicator {
   }
 
   public void sendLine(String line) throws IOException, CryptoException {
-    OutputStream output =  socket.getOutputStream();
-    String encryptedLine = cryptoService.encrypt(line) + '\n';
+    DataOutputStream output =  new DataOutputStream(socket.getOutputStream());
+    String encryptedLine = cryptoService.encrypt(line);
+    output.writeInt(encryptedLine.length());
     output.write(encryptedLine.getBytes());
+    System.out.println("Sent:" + encryptedLine.length());
   }
 
   public void sendPublicKeyBytes(byte[] bytes)
@@ -84,28 +89,20 @@ public class EncryptedSocket implements PublicKeyCommunicator {
 
   }
 
-  public String readLine() throws CryptoException, IOException {
+  public String readLine() throws CryptoException, IOException, TimeoutException {
     String line = "";
     try {
-      BufferedInputStream inputStream = new BufferedInputStream(
-          socket.getInputStream());
-      InputStreamReader inputReader =
-          new InputStreamReader(inputStream, "US-ASCII");
+      DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+      int count = inputStream.readInt();
 
-      int c;
-      while((c=inputReader.read()) != '\n') {
-        if (line.length() < TEXT_LIMIT) {
-          // For too long a line, ignore the rest, even if it means failing to
-          // decrypt something.
-          line += (char)c;
-        }
+      for (int i = 0; i < count; ++i) {
+        line += (char)inputStream.read();
       }
+    } catch (SocketTimeoutException e) {
+      throw new TimeoutException();
     } catch (UnsupportedEncodingException e) {
       throw new IOException(e);
     }
-
-    // System.out.println("enc:" + line);
-    // System.out.println("dec:" + cryptoService.decrypt(line));
 
     return cryptoService.decrypt(line);
   }

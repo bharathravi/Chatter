@@ -5,16 +5,12 @@ package common;
  * possibly followed by content.
  */
 public class Message {
-
-  public static byte[] createPublicKeyMessage(byte[] pKeyBytes) {
-    return pKeyBytes;
-  }
-
   public enum MessageType {
     CHAT, // A chat message, containging actual chat text.
     QUIT, // A QUIT message, snet by either party when it terminates its end of the connection.
     AUTH, // An AUTH message, used by the client to send its user name and password.
     OKAY, // An OKAY message, sent by the server to let the client know that things are fine.
+    FRAG, // A Message indicating that this is a fragmented packet, and that there are more to follow.
   }
 
   public MessageType type;

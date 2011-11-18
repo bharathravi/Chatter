@@ -41,10 +41,23 @@ public class UserDatabase {
 
 
     database.put("bharath",
-        new User("bharath", "42087791f544a461d62ea987de101695","n)(3A93nA42a2946"));
+        new User("bharath",
+            "574a69a9525f736f80b97f61a1e7b11a9bc536428678e4326e0e5bfa099ad6fe",
+            "n)(3A93nA42a2946"));
+
     database.put("alban",
-        new User("alban", "46d49b3bc19b9e42979e6806aa4abb44", "(FNXO#ns&fd91956"));
+        new User("alban",
+            "936af28a46918f27329eae6062e81543339a9360a465c4b2c246871e68676110",
+            "(FNXO#ns&fd91956"));
+
     database.put("kapil",
-        new User("kapil", "3b78c7dfa5c11aac1c2644db407ddf5","}{fm09x)ncTT8456"));
+        new User("kapil",
+            "6126bc96ec205fefb135ce5e268d6fffea68b7bbed0a2870b4cebace2b928aa1",
+            "}{fm09x)ncTT8456"));
+
+    database.put("george",
+        new User("george",
+            "168f252663f77313e897de4a669bee409251cab928fff066585d6e208a2d7374",
+            "Jd92^.<'SHuJas67"));
   }
 }

@@ -18,13 +18,10 @@ public class Constants {
   public static final int MAXCLIENTS=4;
 
   // Timeout value (milliseconds) during authentication
-  public static final int AUTHENTICATION_TIMEOUT = 10000;
+  public static final int AUTHENTICATION_TIMEOUT = 300000;
 
   // Timeout value (milliseconds) during chat
   public static final int CHAT_TIMEOUT = 300000;
-
-  // Maximum text limit: any more than this will be split into multiple chats.
-  public static final int TEXT_LIMIT = 10000;
   public static final char PASSWORD_SEPARATOR = ',';
 
   // Quit message that a user types to disconnect.
@@ -38,8 +35,9 @@ public class Constants {
 
   // Algorithm used to encrypt the channel
   public static final String ENCRYPTION_ALGORITHM = "AES";
-  public static final String ENCRYPTION_PADDING = "/ECB/PKCS7Padding";
+  public static final String ENCRYPTION_PADDING = "/CBC/PKCS5Padding";
+  public static final int ENCRYPTION_BLOCK_SIZE = 16;
 
   // Algorithm used to store hashed passwords.
-  public static final String HASHING_ALGORITHM = "MD5";
+  public static final String HASHING_ALGORITHM = "SHA-256";
 }

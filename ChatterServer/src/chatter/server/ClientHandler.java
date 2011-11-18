@@ -3,6 +3,7 @@ package chatter.server;
 import common.*;
 
 import java.io.*;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,12 +31,10 @@ public class ClientHandler implements Runnable, BroadcastListener {
   public void run() {
     try {
       // Set a timeout for the socket.
-      clientSocket.setTimeout(Constants.AUTHENTICATION_TIMEOUT);
       System.out.println("Client Connected");
 
       // Authenticate the client
       if(authenticateClient()) {
-        clientSocket.setTimeout(Constants.CHAT_TIMEOUT);
         // If the client was able to authenticate itself, then
         // proceed with the chat stuff.
         clientSocket.sendLine(Message.createOkayMessage());
@@ -43,10 +42,8 @@ public class ClientHandler implements Runnable, BroadcastListener {
             thisUser.getUserName() + " has logged in."));
         startChatting();
       } else {
-        clientSocket.sendLine(Message.createQuitMessage());
+        sendQuit();
       }
-    } catch (InterruptedIOException e) {
-      System.out.println("Closing client due to time-out");
     } catch (IOException e) {
       System.out.println("Closing client due IO Exception");
       e.printStackTrace();
@@ -55,15 +52,31 @@ public class ClientHandler implements Runnable, BroadcastListener {
       //e.printStackTrace();
     } catch (CryptoException e) {
       System.out.println("Error in encryption/decryption");
+    } catch (TimeoutException e) {
+      System.out.println("Closing client due to time-out");
+      sendQuit();
+      e.printStackTrace();
     } finally {
       disconnect();
     }
   }
 
+  private void sendQuit() {
+    // Quitting is a best effort operation. If there are errors
+    // while sending a Quit message, they are simply ignored.
+    try {
+      clientSocket.sendLine(Message.createQuitMessage());
+    } catch (IOException e) {
+      // Ignore error
+    } catch (CryptoException e) {
+      // Ignore error
+    }
+  }
+
   private void disconnect() {
     broadcastService.unregisterListener(this);
+     clientCount.decrementClientCount();
     if (!clientSocket.isClosed()) {
-      clientCount.decrementClientCount();
       System.out.println("Client disconnected. Client count is:" +
           clientCount.getClientCount());
       try {
@@ -74,7 +87,9 @@ public class ClientHandler implements Runnable, BroadcastListener {
     }
   }
 
-  private void startChatting() throws IOException, InvalidMessageException, CryptoException {
+  private void startChatting() throws IOException, InvalidMessageException, CryptoException, TimeoutException {
+    // Set an appropriate time for the chat.
+    clientSocket.setTimeout(Constants.CHAT_TIMEOUT);
     while(true) {
       String line = clientSocket.readLine();
       Message msg = new Message(line);
@@ -105,8 +120,9 @@ public class ClientHandler implements Runnable, BroadcastListener {
   }
 
   private boolean authenticateClient() throws IOException,
-      InvalidMessageException, CryptoException {
-    //clientSocket.sendLine("PASS");
+      InvalidMessageException, CryptoException, TimeoutException {
+    // Set an appropriate timeout for authentication.
+    clientSocket.setTimeout(Constants.AUTHENTICATION_TIMEOUT);
     String line = clientSocket.readLine();
 
     Message msg = new Message(line);
@@ -130,7 +146,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   public void onBroadcastShutdown() throws IOException, CryptoException {
     // Safely close the connection.
-    clientSocket.sendLine(Message.createQuitMessage());
+    sendQuit();
     disconnect();
   }
 }
