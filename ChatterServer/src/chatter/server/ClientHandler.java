@@ -3,6 +3,7 @@ package chatter.server;
 import common.*;
 
 import java.io.*;
+import java.net.SocketException;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -65,15 +66,15 @@ public class ClientHandler implements Runnable, BroadcastListener {
     try {
       clientSocket.sendLine(Message.createQuitMessage());
     } catch (IOException e) {
-      // Ignore error
+      e.printStackTrace();
     } catch (CryptoException e) {
-      // Ignore error
+      e.printStackTrace();
     }
   }
 
   private void disconnect() {
-    broadcastService.unregisterListener(this);
     sendQuit();
+    broadcastService.unregisterListener(this);
     clientCount.decrementClientCount();
     if (!clientSocket.isClosed()) {
       System.out.println("Client disconnected. Client count is:" +

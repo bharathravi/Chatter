@@ -43,7 +43,7 @@ public class ChatterClient {
       e.printStackTrace();
       return;
     } catch (IOException e) {
-      System.out.println(ErrorConstants.ERROR_DISCONNECT);
+      System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
       //e.printStackTrace();
       return;
     }
@@ -58,7 +58,7 @@ public class ChatterClient {
     } catch (TimeoutException e) {
       System.out.println(ErrorConstants.ERROR_SERVER_TIMEOUT);
     } catch (IOException e) {
-      System.out.println(ErrorConstants.ERROR_DISCONNECT);
+      System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
       //e.printStackTrace();
     } finally {
       shutdown();
@@ -124,8 +124,6 @@ public class ChatterClient {
     System.out.print("Password : ");
     String password = readChat.readLine();
 
-    System.out.println(Integer.MAX_VALUE);
-
     connection.sendLine(Message.createAuthMessage(username, password));
     String response = connection.readLine();
     Message msg = new Message(response);
@@ -156,8 +154,7 @@ public class ChatterClient {
           boolean quit = false;
 
           while (!quit) {
-            String responseLine = null;
-            responseLine = finalConnection.readLine();
+            String responseLine = finalConnection.readLine();
             Message msg = new Message(responseLine);
             switch (msg.type) {
               case QUIT:
@@ -175,23 +172,28 @@ public class ChatterClient {
           }
           shutdown();
         } catch (SocketException e) {
-          onServerThreadError(e);
+          System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
+          onServerThreadError();
         } catch (IOException e) {
-          onServerThreadError(e);
+          e.printStackTrace();
+          onServerThreadError();
         } catch (InvalidMessageException e) {
-          onServerThreadError(e);
+          System.out.println(ErrorConstants.INVALID_MESSAGE);
+          e.printStackTrace();
+          onServerThreadError();
         } catch (CryptoException e) {
-          onServerThreadError(e);
+          System.out.println(ErrorConstants.ERROR_ENCRYPTION);
+          e.printStackTrace();
+          onServerThreadError();
         } catch (TimeoutException e) {
-          onServerThreadError(e);
+          System.out.println(ErrorConstants.ERROR_SERVER_TIMEOUT);
+          onServerThreadError();
         }
       }
     });
   }
 
-  private void onServerThreadError(Exception e) {
-    System.out.println("Server closed:");
-    e.printStackTrace();
+  private void onServerThreadError() {
     isStopped = true;
   }
 }

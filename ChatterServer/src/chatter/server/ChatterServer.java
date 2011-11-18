@@ -37,8 +37,9 @@ public class ChatterServer {
     }
 
 
-    while (!isStopped) {
-      try {
+    try {
+      while (!isStopped) {
+
         System.out.println("Current client count is " +
             clientCountMonitor.getClientCount());
         Socket clientSocket = serverSocket.accept();
@@ -54,13 +55,16 @@ public class ChatterServer {
                   clientCountMonitor, broadcastService)
           ).start();
         }
-      }catch (CryptoException e) {
-        System.out.println(ErrorConstants.ERROR_ENCRYPTION);
-      } catch (DiffieHellmanException e) {
-        System.out.println(ErrorConstants.ERROR_ENCRYPTION_SETUP);
-      } catch (IOException e) {
-        System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
       }
+    }catch (CryptoException e) {
+      System.out.println(ErrorConstants.ERROR_ENCRYPTION);
+    } catch (DiffieHellmanException e) {
+      System.out.println(ErrorConstants.ERROR_ENCRYPTION_SETUP);
+    } catch (IOException e) {
+      System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
+      e.printStackTrace();
+    } finally {
+      performShutdownCleanUp();
     }
   }
 
@@ -89,6 +93,9 @@ public class ChatterServer {
   public void shutdown() {
     // Add in any termination cases here.
     isStopped = true;
+  }
+
+  private void performShutdownCleanUp() {
     try {
       broadcastService.sendShutdown();
     } catch (CryptoException e) {

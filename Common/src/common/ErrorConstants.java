@@ -9,7 +9,7 @@ package common;
  */
 public class ErrorConstants {
   public static final String ERROR_SERVER_TIMEOUT = "The server connection has timed out.";
-  public static final String ERROR_DISCONNECT = "Unable to connect to server";
+  public static final String ERROR_SERVER_DISCONNECT = "Unable to connect to server";
   public static final String ERROR_SERVER_UNREACHABLE = "The server is unreachable.";
   public static final String ERROR_SERVER_QUIT = "The server has quit.";
   public static final String ERROR_AUTH =

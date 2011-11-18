@@ -23,14 +23,14 @@ public class Message {
   private MessageType parseHeader(String message)
       throws InvalidMessageException {
     if (message.length() < 4) {
-      throw new InvalidMessageException();
+      throw new InvalidMessageException(message);
     }
 
     try {
      MessageType type = MessageType.valueOf(message.substring(0,4));
      return type;
     } catch (Exception e) {
-      throw new InvalidMessageException(e);
+      throw new InvalidMessageException(message);
     }
   }
 

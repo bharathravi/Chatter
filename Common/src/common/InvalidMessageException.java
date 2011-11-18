@@ -8,15 +8,11 @@ package common;
  * To change this template use File | Settings | File Templates.
  */
 public class InvalidMessageException extends Exception {
-  public InvalidMessageException(Exception e) {
-    super(e);
+  public InvalidMessageException(Exception e, String message) {
+    super(message,e);
   }
 
-  public InvalidMessageException(){
-    super();
-  }
-
-  public InvalidMessageException(String msg){
-    super(msg);
+  public InvalidMessageException(String message) {
+    super(message);
   }
 }
