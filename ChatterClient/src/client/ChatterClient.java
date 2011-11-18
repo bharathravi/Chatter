@@ -17,17 +17,13 @@ import java.util.concurrent.TimeoutException;
  *     b. Input from client
  * 6. If user says "\quit" then send a QUIT message to server and close.
  */
-public class ChatterClient {
+public class ChatterClient extends Thread {
   private static Thread serverThread;
   private static EncryptedSocket connection;
-  private boolean isStopped = false;
 
+  public ChatterClient() {}
 
-  public ChatterClient() {
-
-  }
-
-  public void start() throws CryptoException {
+  public void run() {
     try {
       InetAddress address = InetAddress.getByName(Constants.HOST);
       connection = new EncryptedSocket(new Socket(address, Constants.PORT));
@@ -43,29 +39,38 @@ public class ChatterClient {
       e.printStackTrace();
       return;
     } catch (IOException e) {
-      System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
-      //e.printStackTrace();
+      if (isInterrupted()) {
+        System.out.println("Closing connections...");
+      } else {
+        System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
+      }
       return;
+    } catch (CryptoException e) {
+      System.out.println(ErrorConstants.ERROR_ENCRYPTION_SETUP);
+      e.printStackTrace();
     }
 
     try {
       if (authenticateClient()) {
-        startChatLoop();
+        startChatting();
       }
     } catch (InvalidMessageException e) {
       System.out.println(ErrorConstants.INVALID_MESSAGE);
-      //e.printStackTrace();
+      e.printStackTrace();
     } catch (TimeoutException e) {
       System.out.println(ErrorConstants.ERROR_SERVER_TIMEOUT);
     } catch (IOException e) {
-      System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
-      //e.printStackTrace();
-    } finally {
-      shutdown();
+      if(!isInterrupted()) {
+        System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
+        //e.printStackTrace();
+      }
+    } catch (CryptoException e) {
+      System.out.println(ErrorConstants.ERROR_ENCRYPTION);
+      e.printStackTrace();
     }
   }
 
-  private void startChatLoop() throws IOException, CryptoException {
+  private void startChatting() throws IOException, CryptoException {
     System.out.println("Logged in!");
     connection.setTimeout(Constants.CHAT_TIMEOUT);
 
@@ -74,7 +79,7 @@ public class ChatterClient {
     InputStreamReader inputStreamReader = new InputStreamReader(System.in);
     BufferedReader readChat = new BufferedReader(inputStreamReader);
 
-    while (!isStopped) {
+    while (true) {
       String chatText = readChat.readLine();
       if (chatText.equals(Constants.QUIT_MESSAGE)){
         shutdown();
@@ -86,7 +91,7 @@ public class ChatterClient {
   }
 
   private void sendQuit() {
-     // Quitting is a best effort operation. If there are errors
+    // Quitting is a best effort operation. If there are errors
     // while sending a Quit message, they are simply ignored.
     try {
       connection.sendLine(Message.createQuitMessage());
@@ -94,23 +99,6 @@ public class ChatterClient {
       // Ignore error
     } catch (CryptoException e) {
       // Ignore error
-    }
-  }
-
-  public void shutdown() {
-    if(serverThread !=null) {
-      serverThread.interrupt();
-    }
-
-    System.out.println("Disconnecting...");
-
-    if (connection!= null && !connection.isClosed()) {
-      try {
-        sendQuit();
-        connection.close();
-      } catch (IOException e) {
-        System.out.println("Error while closing socket");
-      }
     }
   }
 
@@ -130,7 +118,7 @@ public class ChatterClient {
 
     switch (msg.type) {
       case QUIT:
-        System.out.println();
+        System.out.println(ErrorConstants.ERROR_AUTH);
         return false;
       case OKAY:
         return true;
@@ -145,55 +133,25 @@ public class ChatterClient {
    * the server and printing them when it receives any.
    */
   private void createServerListener() {
-    final EncryptedSocket finalConnection = connection;
-    serverThread = new Thread(new Runnable() {
-      public void run() {
-        try {
-          // The "main" while loop of the client.
-          // Endlessly wait for messages from server and print them out.
-          boolean quit = false;
-
-          while (!quit) {
-            String responseLine = finalConnection.readLine();
-            Message msg = new Message(responseLine);
-            switch (msg.type) {
-              case QUIT:
-                System.out.println(ErrorConstants.ERROR_SERVER_QUIT);
-                quit = true;
-                break;
-              case CHAT:
-                System.out.println(msg.messageContent);
-                break;
-              default:
-                // If an unreadable message was received, quit.
-                System.out.println();
-                quit = true;
-            }
-          }
-          shutdown();
-        } catch (SocketException e) {
-          System.out.println(ErrorConstants.ERROR_SERVER_DISCONNECT);
-          onServerThreadError();
-        } catch (IOException e) {
-          e.printStackTrace();
-          onServerThreadError();
-        } catch (InvalidMessageException e) {
-          System.out.println(ErrorConstants.INVALID_MESSAGE);
-          e.printStackTrace();
-          onServerThreadError();
-        } catch (CryptoException e) {
-          System.out.println(ErrorConstants.ERROR_ENCRYPTION);
-          e.printStackTrace();
-          onServerThreadError();
-        } catch (TimeoutException e) {
-          System.out.println(ErrorConstants.ERROR_SERVER_TIMEOUT);
-          onServerThreadError();
-        }
-      }
-    });
+    serverThread = new ServerListenerThread(connection);
   }
 
-  private void onServerThreadError() {
-    isStopped = true;
+  public void interrupt() {
+    shutdown();
+  }
+
+  private void shutdown() {
+    sendQuit();
+    super.interrupt();
+
+    if(serverThread!=null) {
+      serverThread.interrupt();
+    }
+
+    try {
+      connection.close();
+    } catch (IOException e) {
+      // Ignore error while quitting
+    }
   }
 }

@@ -15,12 +15,12 @@ public class ChatterServerMain {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         System.out.println("Shutting down server...");
-        server.shutdown();
+        server.interrupt();
         System.out.println("Done. Bye!");
       }
     });
 
     System.out.println("Starting up");
-    server.startListening();
+    server.start();
   }
 }

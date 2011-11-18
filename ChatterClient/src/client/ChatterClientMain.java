@@ -18,7 +18,7 @@ public class ChatterClientMain {
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
         System.out.println("Shutting down...");
-        client.shutdown();
+        client.interrupt();
         System.out.println("Done. Bye!");
       }
     });

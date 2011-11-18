@@ -3,7 +3,6 @@ package chatter.server;
 import common.*;
 
 import java.io.*;
-import java.net.SocketException;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -13,12 +12,11 @@ import java.util.concurrent.TimeoutException;
  * Time: 3:02 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ClientHandler implements Runnable, BroadcastListener {
+public class ClientHandler extends Thread implements BroadcastListener {
   private User thisUser;
   private EncryptedSocket clientSocket;
   private ClientCountMonitor clientCount;
   private BroadcastService broadcastService;
-  private boolean isStopped = false;
 
   public ClientHandler(EncryptedSocket clientSocket,
                        ClientCountMonitor clientCountMonitor,
@@ -45,16 +43,27 @@ public class ClientHandler implements Runnable, BroadcastListener {
         startChatting();
       }
     } catch (IOException e) {
-      System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
-      e.printStackTrace();
+      if (isInterrupted()) {
+        System.out.println("Interrupted. Shutting down");
+      } else{
+        System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
+        e.printStackTrace();
+      }
     } catch (InvalidMessageException e) {
       System.out.println(ErrorConstants.INVALID_MESSAGE);
       //e.printStackTrace();
     } catch (CryptoException e) {
       System.out.println(ErrorConstants.ERROR_ENCRYPTION);
     } catch (TimeoutException e) {
+      try {
+        sendQuitMessage();
+      } catch (CryptoException e1) {
+        e1.printStackTrace();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
       System.out.println(ErrorConstants.ERROR_CLIENT_TIMEOUT);
-      e.printStackTrace();
+      //e.printStackTrace();
     } finally {
       disconnect();
     }
@@ -73,7 +82,6 @@ public class ClientHandler implements Runnable, BroadcastListener {
   }
 
   private void disconnect() {
-    sendQuit();
     broadcastService.unregisterListener(this);
     clientCount.decrementClientCount();
     if (!clientSocket.isClosed()) {
@@ -90,15 +98,15 @@ public class ClientHandler implements Runnable, BroadcastListener {
   private void startChatting() throws IOException, InvalidMessageException, CryptoException, TimeoutException {
     // Set an appropriate time for the chat.
     clientSocket.setTimeout(Constants.CHAT_TIMEOUT);
-    while(!isStopped) {
+    while(true) {
       String line = clientSocket.readLine();
       Message msg = new Message(line);
 
-//      System.out.println(thisUser.getUserName() + " says: " + line);
       switch (msg.type) {
         case AUTH: //Ignore, the client is already authenticated.
           break;
         case QUIT:
+          sendQuitMessage();
           return;
         case CHAT:
           broadcastLine(
@@ -109,6 +117,15 @@ public class ClientHandler implements Runnable, BroadcastListener {
           System.out.println(ErrorConstants.ERROR_CLUELESS);
       }
     }
+  }
+
+  private void sendQuitMessage() throws CryptoException, IOException {
+    // Unregister myself, since my client has already quit
+    broadcastService.unregisterListener(this);
+
+    // Inform the other clients about the quit.
+    broadcastLine(Message.createChatMessage(
+        thisUser.getUserName() + " has quit"));
   }
 
   private void broadcastLine(String line) throws IOException, CryptoException {
@@ -124,7 +141,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
     Message msg = new Message(line);
 
     if (msg.type == Message.MessageType.AUTH) {
-   //   System.out.println("Client says: " + msg.messageContent);
+      //   System.out.println("Client says: " + msg.messageContent);
       ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
       if(auth.authenticate()) {
         thisUser = UserDatabase.getInstance().database.get(auth.uname);
@@ -136,12 +153,22 @@ public class ClientHandler implements Runnable, BroadcastListener {
   }
 
   public void onBroadcast(String message) throws IOException, CryptoException {
-   // System.out.println("Sending message:" + message);
+    // System.out.println("Sending message:" + message);
     clientSocket.sendLine(message);
   }
 
   public void onBroadcastShutdown() throws IOException, CryptoException {
-    // Safely close the connection.
-    isStopped = true;
+    // Safely close the connection by closing the socket and interrupting this
+    // thread.
+    sendQuit();
+    shutdown();
+  }
+
+  private void shutdown() throws IOException {
+    super.interrupt();
+
+    if (clientSocket!=null && !clientSocket.isClosed()) {
+      clientSocket.close();
+    }
   }
 }

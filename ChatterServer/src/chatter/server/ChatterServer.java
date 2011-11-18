@@ -14,16 +14,13 @@ import java.net.Socket;
  * Time: 2:50 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ChatterServer {
-
-  private boolean isStopped = false;
+public class ChatterServer extends Thread{
   private ServerSocket serverSocket = null;
   private BroadcastService broadcastService;
 
   ChatterServer() {}
 
-  public void startListening() {
-    this.isStopped = false;
+  public void run() {
     final ClientCountMonitor clientCountMonitor = new ClientCountMonitor();
     broadcastService = new BroadcastService();
 
@@ -36,9 +33,8 @@ public class ChatterServer {
       return;
     }
 
-
     try {
-      while (!isStopped) {
+      while (true) {
 
         System.out.println("Current client count is " +
             clientCountMonitor.getClientCount());
@@ -50,10 +46,8 @@ public class ChatterServer {
           // authenticating if there are too many clients connected.
           clientCountMonitor.incrementClientCount();
 
-          new Thread(
-              new ClientHandler(new EncryptedSocket(clientSocket),
-                  clientCountMonitor, broadcastService)
-          ).start();
+          new ClientHandler(new EncryptedSocket(clientSocket),
+              clientCountMonitor, broadcastService).start();
         }
       }
     }catch (CryptoException e) {
@@ -61,8 +55,12 @@ public class ChatterServer {
     } catch (DiffieHellmanException e) {
       System.out.println(ErrorConstants.ERROR_ENCRYPTION_SETUP);
     } catch (IOException e) {
+      if (isInterrupted()) {
+        System.out.println("Closing connections...");
+      } else{
       System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
       e.printStackTrace();
+      }
     } finally {
       performShutdownCleanUp();
     }
@@ -90,9 +88,9 @@ public class ChatterServer {
     }
   }
 
-  public void shutdown() {
+  public synchronized void shutdown() {
     // Add in any termination cases here.
-    isStopped = true;
+    performShutdownCleanUp();
   }
 
   private void performShutdownCleanUp() {
@@ -106,7 +104,18 @@ public class ChatterServer {
       e.printStackTrace();
     }
 
+    Thread.currentThread().interrupt();
     closeServerSocket();
+  }
+
+  public void interrupt() {
+    super.interrupt();
+
+    try {
+      serverSocket.close();
+    } catch (IOException e) {
+      // Ignore error while quitting
+    }
   }
 
 
