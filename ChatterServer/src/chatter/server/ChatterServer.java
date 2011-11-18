@@ -30,8 +30,15 @@ public class ChatterServer {
 
     try {
       serverSocket = new ServerSocket(Constants.PORT);
+    } catch (IOException e) {
+      System.out.println("Error starting up server");
+      e.printStackTrace();
+      return;
+    }
 
-      while (!isStopped) {
+
+    while (!isStopped) {
+      try {
         System.out.println("Current client count is " +
             clientCountMonitor.getClientCount());
         Socket clientSocket = serverSocket.accept();
@@ -41,21 +48,19 @@ public class ChatterServer {
           // Increment the clientCount at this point, so that we don't even bother
           // authenticating if there are too many clients connected.
           clientCountMonitor.incrementClientCount();
-          try {
-            new Thread(
-                new ClientHandler(new EncryptedSocket(clientSocket),
-                    clientCountMonitor, broadcastService)
-            ).start();
-          } catch (CryptoException e) {
-            System.out.println("Error in encryption. Closing client socket.");
-          } catch (DiffieHellmanException e) {
-            System.out.println("Unable to create an encrypted connection.");
-          }
+
+          new Thread(
+              new ClientHandler(new EncryptedSocket(clientSocket),
+                  clientCountMonitor, broadcastService)
+          ).start();
         }
+      }catch (CryptoException e) {
+        System.out.println(ErrorConstants.ERROR_ENCRYPTION);
+      } catch (DiffieHellmanException e) {
+        System.out.println(ErrorConstants.ERROR_ENCRYPTION_SETUP);
+      } catch (IOException e) {
+        System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
       }
-    } catch (IOException e) {
-      System.out.println("Error starting up server");
-      e.printStackTrace();
     }
   }
 
@@ -83,6 +88,7 @@ public class ChatterServer {
 
   public void shutdown() {
     // Add in any termination cases here.
+    isStopped = true;
     try {
       broadcastService.sendShutdown();
     } catch (CryptoException e) {
@@ -92,7 +98,7 @@ public class ChatterServer {
       System.out.println("Error while shutting down");
       e.printStackTrace();
     }
-    isStopped = true;
+
     closeServerSocket();
   }
 

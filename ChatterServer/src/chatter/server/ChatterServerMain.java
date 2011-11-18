@@ -20,6 +20,7 @@ public class ChatterServerMain {
       }
     });
 
+    System.out.println("Starting up");
     server.startListening();
   }
 }

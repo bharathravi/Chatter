@@ -17,6 +17,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
   private EncryptedSocket clientSocket;
   private ClientCountMonitor clientCount;
   private BroadcastService broadcastService;
+  private boolean isStopped = false;
 
   public ClientHandler(EncryptedSocket clientSocket,
                        ClientCountMonitor clientCountMonitor,
@@ -41,8 +42,6 @@ public class ClientHandler implements Runnable, BroadcastListener {
         broadcastLine(Message.createChatMessage(
             thisUser.getUserName() + " has logged in."));
         startChatting();
-      } else {
-        sendQuit();
       }
     } catch (IOException e) {
       System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
@@ -54,7 +53,6 @@ public class ClientHandler implements Runnable, BroadcastListener {
       System.out.println(ErrorConstants.ERROR_ENCRYPTION);
     } catch (TimeoutException e) {
       System.out.println(ErrorConstants.ERROR_CLIENT_TIMEOUT);
-      sendQuit();
       e.printStackTrace();
     } finally {
       disconnect();
@@ -75,7 +73,8 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   private void disconnect() {
     broadcastService.unregisterListener(this);
-     clientCount.decrementClientCount();
+    sendQuit();
+    clientCount.decrementClientCount();
     if (!clientSocket.isClosed()) {
       System.out.println("Client disconnected. Client count is:" +
           clientCount.getClientCount());
@@ -90,7 +89,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
   private void startChatting() throws IOException, InvalidMessageException, CryptoException, TimeoutException {
     // Set an appropriate time for the chat.
     clientSocket.setTimeout(Constants.CHAT_TIMEOUT);
-    while(true) {
+    while(!isStopped) {
       String line = clientSocket.readLine();
       Message msg = new Message(line);
 
@@ -99,9 +98,6 @@ public class ClientHandler implements Runnable, BroadcastListener {
         case AUTH: //Ignore, the client is already authenticated.
           break;
         case QUIT:
-  //        System.out.println("User " + thisUser.getUserName() +" has quit");
-          broadcastLine(Message.createChatMessage(
-              "User " + thisUser.getUserName() +" has quit"));
           return;
         case CHAT:
           broadcastLine(
@@ -145,7 +141,6 @@ public class ClientHandler implements Runnable, BroadcastListener {
 
   public void onBroadcastShutdown() throws IOException, CryptoException {
     // Safely close the connection.
-    sendQuit();
-    disconnect();
+    isStopped = true;
   }
 }
