@@ -45,15 +45,15 @@ public class ClientHandler implements Runnable, BroadcastListener {
         sendQuit();
       }
     } catch (IOException e) {
-      System.out.println("Closing client due IO Exception");
+      System.out.println(ErrorConstants.ERROR_CLIENT_CONNECTION);
       e.printStackTrace();
     } catch (InvalidMessageException e) {
-      System.out.println("Invalid/Unexpected message received");
+      System.out.println(ErrorConstants.INVALID_MESSAGE);
       //e.printStackTrace();
     } catch (CryptoException e) {
-      System.out.println("Error in encryption/decryption");
+      System.out.println(ErrorConstants.ERROR_ENCRYPTION);
     } catch (TimeoutException e) {
-      System.out.println("Closing client due to time-out");
+      System.out.println(ErrorConstants.ERROR_CLIENT_TIMEOUT);
       sendQuit();
       e.printStackTrace();
     } finally {
@@ -94,12 +94,12 @@ public class ClientHandler implements Runnable, BroadcastListener {
       String line = clientSocket.readLine();
       Message msg = new Message(line);
 
-      System.out.println(thisUser.getUserName() + " says: " + line);
+//      System.out.println(thisUser.getUserName() + " says: " + line);
       switch (msg.type) {
         case AUTH: //Ignore, the client is already authenticated.
           break;
         case QUIT:
-          System.out.println("User " + thisUser.getUserName() +" has quit");
+  //        System.out.println("User " + thisUser.getUserName() +" has quit");
           broadcastLine(Message.createChatMessage(
               "User " + thisUser.getUserName() +" has quit"));
           return;
@@ -109,8 +109,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
                   thisUser.getUserName() + ": " + msg.messageContent));
           break;
         default:
-          System.out.println("I have no clue what the heck just happened,\n" +
-              "but I'm going to nod and smile like I understood.");
+          System.out.println(ErrorConstants.ERROR_CLUELESS);
       }
     }
   }
@@ -128,7 +127,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
     Message msg = new Message(line);
 
     if (msg.type == Message.MessageType.AUTH) {
-      System.out.println("Client says: " + msg.messageContent);
+   //   System.out.println("Client says: " + msg.messageContent);
       ClientAuthenticator auth = new ClientAuthenticator(msg.messageContent);
       if(auth.authenticate()) {
         thisUser = UserDatabase.getInstance().database.get(auth.uname);
@@ -140,7 +139,7 @@ public class ClientHandler implements Runnable, BroadcastListener {
   }
 
   public void onBroadcast(String message) throws IOException, CryptoException {
-    System.out.println("Sending message:" + message);
+   // System.out.println("Sending message:" + message);
     clientSocket.sendLine(message);
   }
 

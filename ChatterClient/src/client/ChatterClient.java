@@ -1,9 +1,7 @@
 package client;
 
-import com.sun.corba.se.impl.orbutil.closure.Constant;
 import common.*;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.TimeoutException;
@@ -34,18 +32,18 @@ public class ChatterClient {
       InetAddress address = InetAddress.getByName(Constants.HOST);
       connection = new EncryptedSocket(new Socket(address, Constants.PORT));
     } catch (ConnectException e) {
-      System.out.println("Connection refused");
+      System.out.println(ErrorConstants.CONNECTION_REFUSED);
       return;
     } catch (UnknownHostException e) {
-      System.out.println("Unknown server.");
+      System.out.println(ErrorConstants.UNKNOWN_HOST);
       e.printStackTrace();
       return;
     } catch (DiffieHellmanException e) {
-      System.out.println("Error setting up an encrypted channel");
+      System.out.println(ErrorConstants.ERROR_ENCRYPTION_SETUP);
       e.printStackTrace();
       return;
     } catch (IOException e) {
-      System.out.println("Cannot connect to server");
+      System.out.println(ErrorConstants.ERROR_DISCONNECT);
       //e.printStackTrace();
       return;
     }
@@ -54,14 +52,14 @@ public class ChatterClient {
       if (authenticateClient()) {
         startChatLoop();
       }
-    } catch (IOException e) {
-      System.out.println("Cannot connect to the server.");
-      //e.printStackTrace();
     } catch (InvalidMessageException e) {
-      System.out.println("Invalid message received.");
+      System.out.println(ErrorConstants.INVALID_MESSAGE);
       //e.printStackTrace();
     } catch (TimeoutException e) {
-      System.out.println("Connection timed out. Shutting down.");
+      System.out.println(ErrorConstants.ERROR_SERVER_TIMEOUT);
+    } catch (IOException e) {
+      System.out.println(ErrorConstants.ERROR_DISCONNECT);
+      //e.printStackTrace();
     } finally {
       shutdown();
     }
@@ -134,13 +132,12 @@ public class ChatterClient {
 
     switch (msg.type) {
       case QUIT:
-        System.out.println("Server has quit. This could be because of an " +
-            "Incorrect uname/passwd OR because of a timeout.");
+        System.out.println();
         return false;
       case OKAY:
         return true;
       default:
-        System.out.println("Oops! An unreadable message was received.");
+        System.out.println(ErrorConstants.INVALID_MESSAGE);
         return false;
     }
   }
@@ -164,7 +161,7 @@ public class ChatterClient {
             Message msg = new Message(responseLine);
             switch (msg.type) {
               case QUIT:
-                System.out.println("Server has quit.");
+                System.out.println(ErrorConstants.ERROR_SERVER_QUIT);
                 quit = true;
                 break;
               case CHAT:
@@ -172,8 +169,7 @@ public class ChatterClient {
                 break;
               default:
                 // If an unreadable message was received, quit.
-                System.out.println("I have no clue what the heck just happened,\n" +
-                    "but I'm going to nod and smile like I understood.");
+                System.out.println();
                 quit = true;
             }
           }
