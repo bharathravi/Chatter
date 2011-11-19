@@ -1,7 +1,5 @@
 package chatter.server;
 
-import java.util.ArrayList;
-
 /**
  * @author Bharath Ravi
  *

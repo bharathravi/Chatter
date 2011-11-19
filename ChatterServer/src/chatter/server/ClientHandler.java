@@ -1,6 +1,6 @@
 package chatter.server;
 
-import common.*;
+import chatter.common.*;
 
 import java.io.*;
 import java.util.concurrent.TimeoutException;
@@ -33,14 +33,16 @@ public class ClientHandler extends Thread implements BroadcastListener {
       // Set a timeout for the socket.
       System.out.println("Client Connected");
 
-      // Authenticate the client
+      // Authenticate the chatter.client
       if(authenticateClient()) {
-        // If the client was able to authenticate itself, then
+        // If the chatter.client was able to authenticate itself, then
         // proceed with the chat stuff.
         clientSocket.sendLine(Message.createOkayMessage());
         broadcastLine(Message.createChatMessage(
             thisUser.getUserName() + " has logged in."));
         startChatting();
+      } else {
+        sendQuit();
       }
     } catch (IOException e) {
       if (isInterrupted()) {
@@ -103,7 +105,7 @@ public class ClientHandler extends Thread implements BroadcastListener {
       Message msg = new Message(line);
 
       switch (msg.type) {
-        case AUTH: //Ignore, the client is already authenticated.
+        case AUTH: //Ignore, the chatter.client is already authenticated.
           break;
         case QUIT:
           sendQuitMessage();
@@ -120,7 +122,7 @@ public class ClientHandler extends Thread implements BroadcastListener {
   }
 
   private void sendQuitMessage() throws CryptoException, IOException {
-    // Unregister myself, since my client has already quit
+    // Unregister myself, since my chatter.client has already quit
     broadcastService.unregisterListener(this);
 
     // Inform the other clients about the quit.

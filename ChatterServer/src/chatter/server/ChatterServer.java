@@ -1,6 +1,6 @@
 package chatter.server;
 
-import common.*;
+import chatter.common.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,7 +36,7 @@ public class ChatterServer extends Thread{
     try {
       while (true) {
 
-        System.out.println("Current client count is " +
+        System.out.println("Current chatter.client count is " +
             clientCountMonitor.getClientCount());
         Socket clientSocket = serverSocket.accept();
         if (isMaxedOut(clientCountMonitor)) {
@@ -73,7 +73,7 @@ public class ChatterServer extends Thread{
       output.write((Message.createQuitMessage() + "\n").getBytes());
       clientSocket.close();
     } catch (IOException e) {
-      System.out.println("Error closing client socket. " +
+      System.out.println("Error closing chatter.client socket. " +
           "Ignoring and continuing execution");
     }
   }

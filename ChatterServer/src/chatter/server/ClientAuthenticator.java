@@ -1,6 +1,6 @@
 package chatter.server;
 
-import common.Constants;
+import chatter.common.Constants;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
