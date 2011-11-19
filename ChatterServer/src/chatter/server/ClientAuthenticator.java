@@ -29,25 +29,26 @@ public class ClientAuthenticator {
 
   public synchronized boolean authenticate() {
     try {
-      MessageDigest md5 = MessageDigest.getInstance(
+      MessageDigest sha256 = MessageDigest.getInstance(
           Constants.HASHING_ALGORITHM);
       if (database.database.containsKey(uname)) {
         User user = database.database.get(uname);
-        md5.update(user.getSalt().getBytes());
-        md5.update(passwd.getBytes());
-        byte[] passwdHash = md5.digest();
+
+        // Update the sha256 sum with the password and the salt.
+        sha256.update(user.getSalt().getBytes());
+        sha256.update(passwd.getBytes());
+
+        // Compute the sha256 digest.
+        byte[] passwdHash = sha256.digest();
         BigInteger number = new BigInteger(1, passwdHash);
         String hashtext = number.toString(16);
 
+        System.out.println(hashtext);
+        System.out.println(user.getPasswordHash());
 
         if(!user.isLoggedIn() && user.getPasswordHash().equals(hashtext)) {
-          System.out.println("Loggedin: no" );
           user.setLoggedIn(true);
           return true;
-        }
-
-        if (user.isLoggedIn()) {
-          System.out.println("Loggedin: yes" );
         }
       }
     } catch (NoSuchAlgorithmException e) {

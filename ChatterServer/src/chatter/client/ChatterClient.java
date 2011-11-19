@@ -29,7 +29,7 @@ public class ChatterClient extends Thread {
   public ChatterClient() {}
 
   public void run() {
-   try {
+    try {
       InetAddress address = InetAddress.getByName(Constants.HOST);
       connection = new EncryptedSocket(new Socket(address, Constants.PORT));
     } catch (ConnectException e) {
@@ -113,14 +113,29 @@ public class ChatterClient extends Thread {
   private boolean authenticateClient() throws IOException, CryptoException,
       InvalidMessageException, TimeoutException {
     connection.setTimeout(Constants.AUTHENTICATION_TIMEOUT);
-    InputStreamReader inputStreamReader = new InputStreamReader(System.in);
-    BufferedReader readChat = new BufferedReader(inputStreamReader);
-    System.out.print("UserName : ");
-    String username = readChat.readLine();
-    System.out.print("Password : ");
-    String password = readChat.readLine();
+    Console console = System.console();
 
-    connection.sendLine(Message.createAuthMessage(username, password));
+    String username = "";
+    char[] password;
+//    if (console!=null) {
+//      System.out.print("UserName : ");
+//      username = console.readLine();
+//      System.out.print("Password : ");
+//      password = console.readPassword();
+//
+//    } else {
+//      System.out.println("WARNING: Unable to start System console. " +
+//          "Your password will not be masked.");
+      InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+      BufferedReader readChat = new BufferedReader(inputStreamReader);
+      System.out.print("UserName : ");
+      username = readChat.readLine();
+      System.out.print("Password : ");
+      password = readChat.readLine().toCharArray();
+//    }
+
+    System.out.println(password.length);
+    connection.sendLine(Message.createAuthMessage(username, password.toString()));
     String response = connection.readLine();
     Message msg = new Message(response);
 
