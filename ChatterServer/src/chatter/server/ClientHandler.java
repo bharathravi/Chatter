@@ -44,6 +44,7 @@ public class ClientHandler extends Thread implements BroadcastListener {
       } else {
         sendQuit();
       }
+        else{sendQuit();}
     } catch (IOException e) {
       if (isInterrupted()) {
         System.out.println("Interrupted. Shutting down");
