@@ -42,6 +42,7 @@ public class ClientHandler extends Thread implements BroadcastListener {
             thisUser.getUserName() + " has logged in."));
         startChatting();
       }
+        else{sendQuit();}
     } catch (IOException e) {
       if (isInterrupted()) {
         System.out.println("Interrupted. Shutting down");
