@@ -7,11 +7,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 5:22 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * An authenticator that verifies a username and password
+ * by comparing hashed values of the password from a predetermined
+ * Database of authentic users and passwords.
  */
 public class ClientAuthenticator {
   String uname;
@@ -36,12 +38,6 @@ public class ClientAuthenticator {
         byte[] passwdHash = md5.digest();
         BigInteger number = new BigInteger(1, passwdHash);
         String hashtext = number.toString(16);
-
-
-        System.out.println(hashtext);
-        System.out.println(uname);
-        System.out.println(database.database.get(uname).getPasswordHash());
-
 
         if(user.getPasswordHash().equals(hashtext))
           return true;

@@ -6,11 +6,16 @@ import java.io.*;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 3:02 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * Controller class for a single client. This thread handles authentication
+ * of the client with a username password, handles incoming and outgoing
+ * messages from/to this client.
+ *
+ * This implements a {@code BroadcastListener} that transmits broadcast
+ * chats heard from other connected clients.
  */
 public class ClientHandler extends Thread implements BroadcastListener {
   private User thisUser;

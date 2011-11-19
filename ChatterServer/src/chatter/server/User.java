@@ -1,11 +1,16 @@
 package chatter.server;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 9:37 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * Represents a single User in the system and stores relevant data.
+ * The class stores 4 pieces of information:
+ * 1. The username
+ * 2. A hash of the user's password (combined with a random salt)
+ * 3. A random salt string combined with the cleartext password to
+ * generate the hash
  */
 public class User {
   private String userName;

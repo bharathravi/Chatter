@@ -1,11 +1,10 @@
 package chatter.common;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 2:55 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  */
 public class ErrorConstants {
   public static final String ERROR_SERVER_TIMEOUT = "The server connection has timed out.";

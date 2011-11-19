@@ -2,9 +2,12 @@ package chatter.server;
 
 /**
  * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  *
  * This class simply maintains a count of how many clients
- * are currently being processed at the server.
+ * are currently being served.
  */
 public class ClientCountMonitor {
   private int clientCount;

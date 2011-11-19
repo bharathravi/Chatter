@@ -8,11 +8,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 2:50 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * This is the main "Controller" class for the Server.
+ * This class is a Thread that continuously waits for a connection
+ * from a client.
+ *
+ * For a client attempting to connect, it either:
+ * 1. Rejects the client if it already is serving too many.
+ * 2. Sets up an encrypted socket, and spawns a new thread to handle the client.
  */
 public class ChatterServer extends Thread{
   private ServerSocket serverSocket = null;

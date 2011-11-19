@@ -3,11 +3,12 @@ package chatter.client;
 import chatter.common.CryptoException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/13/11
- * Time: 10:25 AM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * The "main" class for the client that handles starting up and shutting down
+ * the client thread.
  */
 public class ChatterClientMain {
 

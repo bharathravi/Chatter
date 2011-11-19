@@ -5,11 +5,18 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 5:47 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * A database of {@code User} objects. This is simply a
+ * HashMap of usernames to their corresponding User objects.
+ *
+ * This is a singleton, read-only class that is created once when the server
+ * starts up and accessed by all threads.
+ *
+ * This could be better designed, but was not necessary for purpose of
+ * this project.
  */
 public class UserDatabase {
   HashMap<String, User> database = new HashMap<String, User>();
@@ -23,24 +30,7 @@ public class UserDatabase {
 
 
   private UserDatabase(){
- /* try {
-      MessageDigest md5 = MessageDigest.getInstance("MD5");
-      md5.update("n)(3A93nA42a".getBytes());
-      md5.update("bharath".getBytes());
-
-      byte[] b = md5.digest();
-      for (int i=0; i<b.length; ++i) {
-        System.out.print(b[i]));
-      }
-    } catch (NoSuchAlgorithmException e) {
-      System.out.println("Unable to create an MD5 hasher.");
-      e.printStackTrace();
-    }        */
-
-
-
-
-    database.put("bharath",
+     database.put("bharath",
         new User("bharath",
             "574a69a9525f736f80b97f61a1e7b11a9bc536428678e4326e0e5bfa099ad6fe",
             "n)(3A93nA42a2946"));

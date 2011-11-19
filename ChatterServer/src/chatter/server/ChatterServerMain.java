@@ -1,11 +1,12 @@
 package chatter.server;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/12/11
- * Time: 1:08 AM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
+ * The "main" class for the Server, that handles startup and shutdown of the
+ * Server thread.
  */
 public class ChatterServerMain {
   public static void main(String[] args) {

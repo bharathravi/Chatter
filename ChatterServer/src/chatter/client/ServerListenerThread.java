@@ -8,11 +8,10 @@ import java.net.SocketException;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/18/11
- * Time: 5:53 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  */
 public class ServerListenerThread extends Thread {
 

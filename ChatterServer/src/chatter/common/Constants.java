@@ -3,11 +3,10 @@ package chatter.common;
 import java.math.BigInteger;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/11/11
- * Time: 2:55 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  */
 public class Constants {
   // Server address and port

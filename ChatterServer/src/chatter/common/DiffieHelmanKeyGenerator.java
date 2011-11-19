@@ -8,11 +8,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/13/11
- * Time: 6:29 PM
- * To change this template use File | Settings | File Templates.
+ *@author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  */
 public class DiffieHelmanKeyGenerator {
   PublicKeyCommunicator communicator;

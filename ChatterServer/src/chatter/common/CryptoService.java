@@ -8,11 +8,10 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created by IntelliJ IDEA.
- * User: bharath
- * Date: 11/13/11
- * Time: 6:51 PM
- * To change this template use File | Settings | File Templates.
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  */
 class CryptoService {
   Cipher encryptor;

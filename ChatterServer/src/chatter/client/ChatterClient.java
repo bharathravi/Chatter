@@ -8,6 +8,10 @@ import java.net.*;
 import java.util.concurrent.TimeoutException;
 
 /**
+ * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  * The basic chatter.client algorithm is as follows:
  * 1. Create a Socket to the server
  * 2. Use the socket to create an EncryptedSocket.
@@ -123,7 +127,6 @@ public class ChatterClient extends Thread {
         System.out.println(ErrorConstants.ERROR_AUTH);
         return false;
       case OKAY:
-        System.out.print("Okay");
         return true;
       default:
         System.out.println(ErrorConstants.INVALID_MESSAGE);

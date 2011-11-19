@@ -13,6 +13,9 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * @author Bharath Ravi
+ * @author Kapil Goel
+ * @author Alban
+ *
  *
  * An "encrypted socket" that handles sending and receiving of encrypted data
  * over a standard socket. Its implementation is specifc to our usecase, since
@@ -67,7 +70,6 @@ public class EncryptedSocket implements PublicKeyCommunicator {
     String encryptedLine = cryptoService.encrypt(line);
     output.writeInt(encryptedLine.length());
     output.write(encryptedLine.getBytes());
-    System.out.println("Sent:" + encryptedLine.length());
   }
 
   public void sendPublicKeyBytes(byte[] bytes)
