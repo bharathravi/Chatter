@@ -117,25 +117,25 @@ public class ChatterClient extends Thread {
 
     String username = "";
     char[] password;
-//    if (console!=null) {
-//      System.out.print("UserName : ");
-//      username = console.readLine();
-//      System.out.print("Password : ");
-//      password = console.readPassword();
-//
-//    } else {
-//      System.out.println("WARNING: Unable to start System console. " +
-//          "Your password will not be masked.");
+    if (console!=null) {
+      System.out.print("UserName : ");
+      username = console.readLine();
+      System.out.print("Password : ");
+      password = console.readPassword();
+
+    } else {
+      System.out.println("WARNING: Unable to start System console. " +
+          "Your password will not be masked.");
       InputStreamReader inputStreamReader = new InputStreamReader(System.in);
       BufferedReader readChat = new BufferedReader(inputStreamReader);
       System.out.print("UserName : ");
       username = readChat.readLine();
       System.out.print("Password : ");
       password = readChat.readLine().toCharArray();
-//    }
+    }
 
-    System.out.println(password.length);
-    connection.sendLine(Message.createAuthMessage(username, password.toString()));
+    connection.sendLine(
+        Message.createAuthMessage(username, String.copyValueOf(password)));
     String response = connection.readLine();
     Message msg = new Message(response);
 
