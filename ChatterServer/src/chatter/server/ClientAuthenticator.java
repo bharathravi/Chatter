@@ -39,8 +39,15 @@ public class ClientAuthenticator {
         BigInteger number = new BigInteger(1, passwdHash);
         String hashtext = number.toString(16);
 
-        if(user.getPasswordHash().equals(hashtext))
+        if(!user.isLoggedIn() && user.getPasswordHash().equals(hashtext)) {
+          System.out.println("Loggedin: no" );
+          user.setLoggedIn(true);
           return true;
+        }
+
+        if (user.isLoggedIn()) {
+          System.out.println("Loggedin: yes" );
+        }
       }
     } catch (NoSuchAlgorithmException e) {
       e.printStackTrace();

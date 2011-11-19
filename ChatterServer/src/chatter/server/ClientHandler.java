@@ -29,7 +29,11 @@ public class ClientHandler extends Thread implements BroadcastListener {
     this.clientSocket = clientSocket;
     this.clientCount = clientCountMonitor;
     this.broadcastService = broadcastService;
-    broadcastService.registerListener(this);
+
+    // Until a real user is logged in, create an empty
+    // user who can never log in.
+    thisUser = new User("","","");
+    thisUser.setLoggedIn(false);
   }
 
 
@@ -42,11 +46,14 @@ public class ClientHandler extends Thread implements BroadcastListener {
         // If the chatter.client was able to authenticate itself, then
         // proceed with the chat stuff.
         clientSocket.sendLine(Message.createOkayMessage());
+        broadcastService.registerListener(this);
+        System.out.println(ErrorConstants.WORTHY_CLIENT);
         broadcastLine(Message.createChatMessage(
             thisUser.getUserName() + " has logged in."));
         startChatting();
       } else {
         // If authentication failed, send a QUIT message and return.
+        System.out.println(ErrorConstants.UNWORTHY_CLIENT);
         sendQuit();
       }
     } catch (IOException e) {
@@ -92,6 +99,9 @@ public class ClientHandler extends Thread implements BroadcastListener {
 
   private void disconnect() {
     broadcastService.unregisterListener(this);
+    if (thisUser != null) {
+      thisUser.setLoggedIn(false);
+    }
     clientCount.decrementClientCount();
     if (!clientSocket.isClosed()) {
       System.out.println("Client disconnected. Client count is:" +

@@ -95,13 +95,13 @@ public class EncryptedSocket implements PublicKeyCommunicator {
       for (int i = 0; i < count; ++i) {
         line += (char)inputStream.read();
       }
+
+      return cryptoService.decrypt(line);
     } catch (SocketTimeoutException e) {
       throw new TimeoutException();
     } catch (UnsupportedEncodingException e) {
       throw new IOException(e);
     }
-
-    return cryptoService.decrypt(line);
   }
 
   public void setTimeout(int timeout) throws SocketException {

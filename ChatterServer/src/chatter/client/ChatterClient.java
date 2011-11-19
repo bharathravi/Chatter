@@ -130,8 +130,12 @@ public class ChatterClient extends Thread {
         return false;
       case OKAY:
         return true;
+      case CHAT:
+        System.out.println(msg.messageContent);
+        return false;
       default:
         System.out.println(ErrorConstants.INVALID_MESSAGE);
+        System.out.println(msg.type);
         return false;
     }
   }

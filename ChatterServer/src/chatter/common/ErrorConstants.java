@@ -32,4 +32,6 @@ public class ErrorConstants {
   public static final String ERROR_CLUELESS =
       "I have no clue what the heck just happened,\n"
           +  "but I'm going to nod and smile like I understood.";
+  public static final String UNWORTHY_CLIENT = "The Gods of chat deem this client unworthy.";
+  public static final String WORTHY_CLIENT = "Client authenticated";
 }
