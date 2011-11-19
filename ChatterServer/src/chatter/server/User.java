@@ -2,8 +2,8 @@ package chatter.server;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * Represents a single User in the system and stores relevant data.
  * The class stores 4 pieces of information:

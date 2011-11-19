@@ -9,8 +9,8 @@ import java.net.Socket;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * This is the main "Controller" class for the Server.
  * This class is a Thread that continuously waits for a connection

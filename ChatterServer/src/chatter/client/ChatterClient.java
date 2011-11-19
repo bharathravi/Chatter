@@ -9,8 +9,8 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * The basic chatter.client algorithm is as follows:
  * 1. Create a Socket to the server
@@ -99,6 +99,8 @@ public class ChatterClient extends Thread {
   private void sendQuit() {
     // Quitting is a best effort operation. If there are errors
     // while sending a Quit message, they are simply ignored.
+    // This is because the other end is fail proof with timeouts anyway,
+    // and the QUIT is just a convenience.
     try {
       connection.sendLine(Message.createQuitMessage());
     } catch (IOException e) {

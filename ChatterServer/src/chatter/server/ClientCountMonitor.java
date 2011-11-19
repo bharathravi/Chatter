@@ -2,8 +2,8 @@ package chatter.server;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  *
  * This class simply maintains a count of how many clients

@@ -9,8 +9,8 @@ import java.security.spec.X509EncodedKeySpec;
 
 /**
  *@author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  */
 public class DiffieHelmanKeyGenerator {

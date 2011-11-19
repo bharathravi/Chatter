@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * A database of {@code User} objects. This is simply a
  * HashMap of usernames to their corresponding User objects.
@@ -27,10 +27,9 @@ public class UserDatabase {
     return instance;
   }
 
-
-
   private UserDatabase(){
-     database.put("bharath",
+    // Hardcode some users into the database.
+    database.put("bharath",
         new User("bharath",
             "574a69a9525f736f80b97f61a1e7b11a9bc536428678e4326e0e5bfa099ad6fe",
             "n)(3A93nA42a2946"));

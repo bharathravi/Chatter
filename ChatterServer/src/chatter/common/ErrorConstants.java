@@ -2,8 +2,8 @@ package chatter.common;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  */
 public class ErrorConstants {
@@ -17,8 +17,8 @@ public class ErrorConstants {
           + "Or maybe you are just not worthy.";
 
 
-  public static final String ERROR_CLIENT_TIMEOUT = "Closing chatter.client due to time-out";
-  public static final String ERROR_CLIENT_CONNECTION = "Closing chatter.client due IO Exception";
+  public static final String ERROR_CLIENT_TIMEOUT = "Closing client due to time-out.";
+  public static final String ERROR_CLIENT_CONNECTION = "Closing client due IO Exception.";
 
 
   public static final String ERROR_ENCRYPTION_SETUP = "Error in setting up and encrypted channel";

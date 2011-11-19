@@ -8,8 +8,8 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * An authenticator that verifies a username and password
  * by comparing hashed values of the password from a predetermined

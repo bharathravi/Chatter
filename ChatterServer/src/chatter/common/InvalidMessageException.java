@@ -2,8 +2,8 @@ package chatter.common;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  */
 public class InvalidMessageException extends Exception {

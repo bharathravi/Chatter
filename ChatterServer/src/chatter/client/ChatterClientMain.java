@@ -4,8 +4,8 @@ import chatter.common.CryptoException;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * The "main" class for the client that handles starting up and shutting down
  * the client thread.

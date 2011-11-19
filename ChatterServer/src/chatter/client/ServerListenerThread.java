@@ -9,8 +9,8 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  */
 public class ServerListenerThread extends Thread {

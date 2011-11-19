@@ -4,8 +4,8 @@ import java.io.IOException;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * Describes a class that can subsribe to a broadcast service that supports
  * two options:

@@ -2,8 +2,8 @@ package chatter.server;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * The "main" class for the Server, that handles startup and shutdown of the
  * Server thread.

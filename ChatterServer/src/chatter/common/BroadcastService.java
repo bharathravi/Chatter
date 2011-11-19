@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * A Broadcast service that maintains a list of registered
  * {@code BroadcastListener}'s and can be used to send a broadcast message to

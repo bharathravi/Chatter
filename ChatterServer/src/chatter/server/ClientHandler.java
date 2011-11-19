@@ -7,8 +7,8 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * @author Bharath Ravi
- * @author Kapil Goel
- * @author Alban
+ * @author Kapil Gole
+ * @author Alban Dumouilla
  *
  * Controller class for a single client. This thread handles authentication
  * of the client with a username password, handles incoming and outgoing
@@ -35,7 +35,6 @@ public class ClientHandler extends Thread implements BroadcastListener {
 
   public void run() {
     try {
-      // Set a timeout for the socket.
       System.out.println("Client Connected");
 
       // Authenticate the chatter.client
@@ -47,6 +46,7 @@ public class ClientHandler extends Thread implements BroadcastListener {
             thisUser.getUserName() + " has logged in."));
         startChatting();
       } else {
+        // If authentication failed, send a QUIT message and return.
         sendQuit();
       }
     } catch (IOException e) {
@@ -58,7 +58,7 @@ public class ClientHandler extends Thread implements BroadcastListener {
       }
     } catch (InvalidMessageException e) {
       System.out.println(ErrorConstants.INVALID_MESSAGE);
-      //e.printStackTrace();
+      e.printStackTrace();
     } catch (CryptoException e) {
       System.out.println(ErrorConstants.ERROR_ENCRYPTION);
     } catch (TimeoutException e) {
@@ -79,12 +79,14 @@ public class ClientHandler extends Thread implements BroadcastListener {
   private void sendQuit() {
     // Quitting is a best effort operation. If there are errors
     // while sending a Quit message, they are simply ignored.
+    // This is because the other end is fail proof with timeouts anyway,
+    // and the QUIT is just a convenience.
     try {
       clientSocket.sendLine(Message.createQuitMessage());
     } catch (IOException e) {
-      e.printStackTrace();
+      // Ignore error
     } catch (CryptoException e) {
-      e.printStackTrace();
+      // Ignore error
     }
   }
 
