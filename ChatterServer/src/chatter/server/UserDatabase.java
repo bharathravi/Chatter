@@ -48,5 +48,15 @@ public class UserDatabase {
         new User("george",
             "168f252663f77313e897de4a669bee409251cab928fff066585d6e208a2d7374",
             "Jd92^.<'SHuJas67"));
+
+    database.put("bud",
+        new User("bud",
+            "83c9bcd09bccfaba28d69c96d04f5929d28dd19ad429d6f84fe07bf5f2702f98",
+            "&Dnk35>:sajg@%0&"));
+
+    database.put("denvercoder9",
+        new User("denvercoder9",
+            "c5ca0b620a75c5379743acfd49bf2713584e59eddb81f9eea582a6400aa6b895",
+            "7g*S5308Fgb6SJ7g"));
   }
 }

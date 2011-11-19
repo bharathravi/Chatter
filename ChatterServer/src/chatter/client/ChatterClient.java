@@ -29,7 +29,7 @@ public class ChatterClient extends Thread {
   public ChatterClient() {}
 
   public void run() {
-    try {
+   try {
       InetAddress address = InetAddress.getByName(Constants.HOST);
       connection = new EncryptedSocket(new Socket(address, Constants.PORT));
     } catch (ConnectException e) {
